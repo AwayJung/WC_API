@@ -4,7 +4,7 @@ spring:
       on-profile: local
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbc-url: jdbc:mysql://180.69.253.126:3046
+    url: jdbc:mysql://180.69.253.126:3046/wc
     username: danchu
     password: 0000
   servlet:                      # ??? ??
@@ -29,7 +29,7 @@ spring:
       on-profile: dev
   datasource:
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbc-url: jdbc:mysql://180.69.253.126:3046
+    url: jdbc:mysql://180.69.253.126:3046/wc
     username: danchu
     password: 0000
   servlet:                      # ??? ??
