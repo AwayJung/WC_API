@@ -2,7 +2,7 @@
 
 ## 개발 환경
 - Java 17
-- Spring Boot 3.4.1
+- Spring Boot 3.2.3
 - Gradle
 - MySQL8.0.36
 
