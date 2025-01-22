@@ -1,38 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="ChatMapper">
-    <!-- 채팅방 생성 -->
-    <insert id="createChatRoom" parameterType="wc_api.model.db.chat.ChatRoom">
-        INSERT INTO chat_room (room_id, item_id, seller_id, buyer_id)
-        VALUES (#{roomId}, #{itemId}, #{sellerId}, #{buyerId})
-    </insert>
+<mapper namespace="LoginMapper">
 
-    <!-- 채팅방 단일 조회 -->
-    <select id="findRoomById" resultType="wc_api.model.db.chat.ChatRoom">
-        SELECT * FROM chat_room
-        WHERE room_id = #{roomId}
-    </select>
-
-    <!-- 사용자의 채팅방 목록 조회 -->
-    <select id="findRoomsByUserId" resultType="wc_api.model.db.chat.ChatRoom">
-        SELECT * FROM chat_room
-        WHERE seller_id = #{userId} OR buyer_id = #{userId}
-        ORDER BY created_at DESC
-    </select>
-
-    <!-- 메시지 저장 -->
-    <insert id="insertMessage" parameterType="wc_api.model.db.chat.ChatMessage">
-        INSERT INTO chat_message
-            (room_id, sender, receiver, message, type, item_id, price, status)
-        VALUES
-            (#{roomId}, #{sender}, #{receiver}, #{message}, #{type},
-             #{itemId}, #{price}, #{status})
-    </insert>
-
-    <!-- 채팅방 메시지 목록 조회 -->
-    <select id="findMessagesByRoomId" resultType="wc_api.model.db.chat.ChatMessage">
-        SELECT * FROM chat_message
-        WHERE room_id = #{roomId}
-        ORDER BY sent_time ASC
-    </select>
 </mapper>

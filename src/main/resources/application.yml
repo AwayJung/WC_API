@@ -24,13 +24,7 @@ app:
       path: /Users/wonjung/Workspace/Intellij/Practice/Be/Upload/
 
 logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.boot: DEBUG
-    org.mybatis: DEBUG
-    org.apache.catalina: DEBUG
-    org.hibernate: DEBUG
+  config: classpath:log4j2.xml
 
 ---
 
@@ -61,10 +55,4 @@ app:
       path: /Users/wonjung/Workspace/Intellij/Practice/Be/Upload/
 
 logging:
-  level:
-    org.springframework.security: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.boot: DEBUG
-    org.mybatis: DEBUG
-    org.apache.catalina: DEBUG
-    org.hibernate: DEBUG
+  config: classpath:log4j2.xml
