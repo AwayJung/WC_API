@@ -1,0 +1,32 @@
+[2025-01-22 22:07:05.061] DEBUG 18447 --- [ionShutdownHook] o.s.b.a.ApplicationAvailabilityBean      : Application availability state ReadinessState changed from ACCEPTING_TRAFFIC to REFUSING_TRAFFIC
+[2025-01-22 22:07:05.062] DEBUG 18447 --- [ionShutdownHook] ConfigServletWebServerApplicationContext : Closing org.springframework.boot.web.servlet.context.AnnotationConfigServletWebServerApplicationContext@3ce4044c, started on Wed Jan 22 22:06:05 KST 2025
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Stopping beans in phase 2147483647
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'stompWebSocketHandlerMapping' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : clientOutboundChannel removed SubProtocolWebSocketHandler[StompSubProtocolHandler[v10.stomp, v11.stomp, v12.stomp]]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'subProtocolWebSocketHandler' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'clientInboundChannelExecutor' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'clientOutboundChannelExecutor' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'brokerChannelExecutor' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : clientInboundChannel removed WebSocketAnnotationMethodMessageHandler[prefixes=[/app/]]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'simpAnnotationMethodMessageHandler' completed its stop procedure
+[2025-01-22 22:07:05.063]  INFO 18447 --- [ionShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopping...
+[2025-01-22 22:07:05.063]  INFO 18447 --- [ionShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : BrokerAvailabilityEvent[available=false, SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@79e5c469]]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : clientInboundChannel removed SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@79e5c469]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : brokerChannel removed SimpleBrokerMessageHandler [org.springframework.messaging.simp.broker.DefaultSubscriptionRegistry@79e5c469]
+[2025-01-22 22:07:05.063]  INFO 18447 --- [ionShutdownHook] o.s.m.s.b.SimpleBrokerMessageHandler     : Stopped.
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'simpleBrokerMessageHandler' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : clientInboundChannel removed UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.m.s.ExecutorSubscribableChannel      : brokerChannel removed UserDestinationMessageHandler[DefaultUserDestinationResolver[prefix=/user/]]
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'userDestinationMessageHandler' completed its stop procedure
+[2025-01-22 22:07:05.063] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Stopping beans in phase 2147482623
+[2025-01-22 22:07:05.064] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'webServerGracefulShutdown' completed its stop procedure
+[2025-01-22 22:07:05.064] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Stopping beans in phase 2147481599
+[2025-01-22 22:07:05.067] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'webServerStartStop' completed its stop procedure
+[2025-01-22 22:07:05.067] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Stopping beans in phase -2147483647
+[2025-01-22 22:07:05.067] DEBUG 18447 --- [ionShutdownHook] o.s.c.s.DefaultLifecycleProcessor        : Bean 'springBootLoggingLifecycle' completed its stop procedure
+[2025-01-22 22:07:05.068] DEBUG 18447 --- [ionShutdownHook] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans on shutdown
+[2025-01-22 22:07:05.068] DEBUG 18447 --- [ionShutdownHook] o.s.j.e.a.AnnotationMBeanExporter        : Unregistering JMX-exposed beans
+[2025-01-22 22:07:05.068] DEBUG 18447 --- [ionShutdownHook] o.s.s.c.ThreadPoolTaskExecutor           : Shutting down ExecutorService 'brokerChannelExecutor'
+[2025-01-22 22:07:05.068] DEBUG 18447 --- [ionShutdownHook] o.s.s.c.ThreadPoolTaskScheduler          : Shutting down ExecutorService 'messageBrokerTaskScheduler'
+[2025-01-22 22:07:05.069] DEBUG 18447 --- [ionShutdownHook] o.s.s.c.ThreadPoolTaskExecutor           : Shutting down ExecutorService 'clientOutboundChannelExecutor'
+[2025-01-22 22:07:05.069] DEBUG 18447 --- [ionShutdownHook] o.s.s.c.ThreadPoolTaskExecutor           : Shutting down ExecutorService 'clientInboundChannelExecutor'
