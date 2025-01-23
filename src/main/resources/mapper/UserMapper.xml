@@ -2,4 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="LoginMapper">
 
+    <insert id="createUser" parameterType="wc_api.model.ab.user.User">
+        INSERT INTO
+            user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name)
+        VALUES
+            (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name})
+    </insert>
+
 </mapper>
