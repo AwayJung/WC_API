@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="LoginMapper">
+<mapper namespace="wc_api.dao.UserDAO">
 
-    <insert id="createUser" parameterType="wc_api.model.ab.user.User">
+    <insert id="createUser" parameterType="wc_api.model.db.user.User">
         INSERT INTO
             user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name)
         VALUES
             (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name})
     </insert>
+
+    <select id="getUserByEmail" parameterType="string" resultType="wc_api.model.db.user.User">
+        SELECT id , name , login_email AS "loginEmail", password FROM user WHERE login_email = #{loginEmail}
+    </select>
 
 </mapper>

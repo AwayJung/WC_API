@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wc_api.common.constant.ApiRespPolicy;
 import wc_api.common.model.response.ApiResp;
+import wc_api.model.request.UserReq;
 import wc_api.service.UserService;
 
 /**
@@ -30,7 +31,7 @@ public class UserController {
      * @return 회원가입 성공여부
      */
     @PostMapping("/signup")
-    public ResponseEntity<ApiResp> signup(@RequestBody @Valid ApiResp userReq) throws Exception {
+    public ResponseEntity<ApiResp> signup(@RequestBody @Valid UserReq userReq) throws Exception {
         userService.createUser(userReq);
         return ResponseEntity.status(ApiRespPolicy.SUCCESS_CREATED.getHttpStatus()).body(ApiResp.of(ApiRespPolicy.SUCCESS_CREATED));
     }
