@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class LoginDAO {
+public class UserDAO {
     private final SqlSession sqlSession;
 }
