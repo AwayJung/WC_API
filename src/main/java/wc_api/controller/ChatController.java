@@ -38,7 +38,13 @@ public class ChatController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, room));
     }
 
-    // 사용자의 채팅방 목록 조회
+    /**
+     *
+     * @param userId
+     * 사용자의 채팅방 목록 조회
+     * userId가 참여하는 모든 채팅방 목록 조회(채팅방의 기본 정보를 보여줌)
+     * 사용자가 자신의 채팅 목록 페이지에서 어떤 방에 참여하는지 확인 가능
+     */
     @GetMapping("/rooms/user/{userId}")
     public ResponseEntity<ApiResp> getRoomList(@PathVariable String userId) {
         List<ChatRoom> rooms = chatService.getRoomList(userId);
@@ -47,7 +53,13 @@ public class ChatController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, rooms));
     }
 
-    // 채팅방 메시지 목록 조회
+    /**
+     *
+     * @param roomId
+     * 채팅방 메시지 목록 조회
+     * roomId의 메세지 목록을 조회(채팅방 안의 메세지 내용, 사람 등 세부 정보 반환)
+     * 사용자가 특정 채팅방에 들어갔을 때 대화 내용 확인 가능
+     */
     @GetMapping("/rooms/{roomId}/messages")
     public ResponseEntity<ApiResp> getRoomMessages(@PathVariable String roomId) {
         List<ChatMessage> messages = chatService.getRoomMessages(roomId);
