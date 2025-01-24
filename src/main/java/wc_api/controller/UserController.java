@@ -19,7 +19,7 @@ import wc_api.service.UserService;
  */
 
 @RestController
-@RequestMapping("/api/login")
+@RequestMapping("/api/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
