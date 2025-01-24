@@ -10,4 +10,6 @@ public interface UserDAO {
     User getUserByEmail(@Param(value = "loginEmail") String loginEmail);
 
     int createUser(@Param("user") User user) throws Exception;
+
+    int updateRefreshToken(@Param("loginEmail") String loginEmail, @Param("refreshToken") String refreshToken);
 }
