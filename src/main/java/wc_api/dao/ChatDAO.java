@@ -37,4 +37,11 @@ public interface ChatDAO {
      * @return 해당 채팅방의 메시지 목록
      */
     List<ChatMessage> findMessagesByRoomId(String roomId);
+
+    /**
+     * 메세지 읽음 표시
+     * @param roomId
+     * @param userId
+     */
+    void updateMessagesReadStatus(String roomId, String userId);
 }

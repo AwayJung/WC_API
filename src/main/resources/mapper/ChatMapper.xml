@@ -35,4 +35,12 @@
         WHERE room_id = #{roomId}
         ORDER BY sent_time ASC
     </select>
+
+    <update id="updateMessagesReadStatus">
+        UPDATE chat_message
+        SET status = 'READ'
+        WHERE room_id = #{roomId}
+          AND receiver = #{userId}
+          AND status = 'UNREAD'
+    </update>
 </mapper>

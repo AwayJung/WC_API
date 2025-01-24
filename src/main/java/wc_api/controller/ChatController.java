@@ -68,15 +68,15 @@ public class ChatController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, messages));
     }
 
-    // 메시지 전송
-    @PostMapping("/rooms/{roomId}/messages")
-    public ResponseEntity<ApiResp> sendMessage(
-            @PathVariable String roomId,
-            @RequestBody ChatMessage message) {
-        message.setRoomId(roomId);
-        ChatMessage savedMessage = chatService.sendMessage(message);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS, savedMessage));
-    }
+
+////    @PostMapping("/rooms/{roomId}/messages")
+////    public ResponseEntity<ApiResp> sendMessage(
+////            @PathVariable String roomId,
+////            @RequestBody ChatMessage message) {
+////        message.setRoomId(roomId);
+////        ChatMessage savedMessage = chatService.sendMessage(message);
+////        return ResponseEntity
+////                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+////                .body(ApiResp.of(ApiRespPolicy.SUCCESS, savedMessage));
+////    }
 }

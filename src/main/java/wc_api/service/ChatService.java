@@ -46,4 +46,8 @@ public class ChatService {
         chatDAO.insertMessage(message);
         return message;
     }
+
+    public void markMessageAsRead(String roomId, String userId) {
+        chatDAO.updateMessagesReadStatus(roomId,userId);
+    }
 }
