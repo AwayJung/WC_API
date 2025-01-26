@@ -79,7 +79,7 @@ public class UserService {
             userFromDB.setRefreshToken(refreshToken);
 
             // DB에 저장
-            int updateResult = userDAO.updateRefreshToken(userFromDB.getLoginEmail(), userFromDB.getRefreshToken());
+            userDAO.updateRefreshToken(userFromDB.getLoginEmail(), userFromDB.getRefreshToken());
 
             UserResp userResp = modelMapper.map(userFromDB, UserResp.class);
             userResp.setAccessToken(accessToken);
@@ -89,6 +89,41 @@ public class UserService {
 
 
         }catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 로그인
+     *
+     * @param refreshToken 리프레쉬토큰
+     * @throws CommonApiException with {@link ApiRespPolicy#ERR_INVALID_REFRESH_TOKEN} 리프레쉬토큰이 유효하지 않을 때
+     */
+
+    @Transactional
+    public UserResp refresh(String refreshToken) throws Exception {
+        try {
+            String loginEmail = jwtUtil.extractLoginEmail(refreshToken);
+
+            String storedRefreshToken = userDAO.getStoredRefreshToken(loginEmail);
+
+            if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+                throw new CommonApiException(ApiRespPolicy.ERR_INVALID_REFRESH_TOKEN);
+            }
+
+            String newAccessToken = jwtUtil.createAccessToken(loginEmail);
+            String newRefreshToken = jwtUtil.createRefreshToken(loginEmail);
+
+            userDAO.storeRefreshToken(loginEmail, newRefreshToken);
+
+            UserResp userResp = new UserResp();
+            userResp.setAccessToken(newAccessToken);
+            userResp.setRefreshToken(newRefreshToken);
+
+            return userResp;
+
+        } catch (Exception e) {
             e.printStackTrace();
             throw e;
         }
