@@ -12,13 +12,6 @@ public interface ChatDAO {
     void createChatRoom(ChatRoom room);
 
     /**
-     * 채팅방 ID로 특정 채팅방을 조회
-     * @param roomId 조회할 채팅방 ID
-     * @return 조회된 채팅방 정보
-     */
-    ChatRoom findRoomById(String roomId);
-
-    /**
      * 특정 사용자가 참여중인 모든 채팅방 목록을 조회
      * @param userId 사용자 ID
      * @return 해당 사용자의 채팅방 목록

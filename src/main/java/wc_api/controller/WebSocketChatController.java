@@ -3,11 +3,11 @@ package wc_api.controller;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 import wc_api.model.db.chat.ChatMessage;
 import wc_api.service.ChatService;
 
-@Controller
+@RestController
 public class WebSocketChatController {
     private final ChatService chatService;
 
@@ -15,7 +15,7 @@ public class WebSocketChatController {
         this.chatService = chatService;
     }
 
-    @MessageMapping("/chat/{roomId}")
+    @MessageMapping("/chat/{roomId}/message")
     @SendTo("/topic/chat/{roomId}")
     public ChatMessage handleMessage(@DestinationVariable String roomId, ChatMessage message) throws Exception {
         return chatService.sendMessage(message);

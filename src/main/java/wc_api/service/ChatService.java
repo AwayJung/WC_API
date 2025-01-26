@@ -26,27 +26,24 @@ public class ChatService {
         return room;
     }
 
-    // 채팅방 단일 조회
-    public ChatRoom getRoom(String roomId) {
-        return chatDAO.findRoomById(roomId);
-    }
 
     // 사용자의 채팅방 목록 조회
     public List<ChatRoom> getRoomList(String userId) {
         return chatDAO.findRoomsByUserId(userId);
     }
 
-    // 채팅방 메시지 목록 조회
+    // 채팅방 메시지 상세 조회
     public List<ChatMessage> getRoomMessages(String roomId) {
         return chatDAO.findMessagesByRoomId(roomId);
     }
 
-    // 메시지 저장
+    // 메세지 전송
     public ChatMessage sendMessage(ChatMessage message) {
         chatDAO.insertMessage(message);
         return message;
     }
 
+    // 메세지 읽음 표시
     public void markMessageAsRead(String roomId, String userId) {
         chatDAO.updateMessagesReadStatus(roomId,userId);
     }

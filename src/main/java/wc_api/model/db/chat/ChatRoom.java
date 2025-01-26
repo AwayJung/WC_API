@@ -1,7 +1,6 @@
 package wc_api.model.db.chat;
 
 import lombok.Data;
-import org.apache.ibatis.type.Alias;
 
 import java.time.LocalDateTime;
 

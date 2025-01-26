@@ -13,15 +13,14 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/queue");  // 구독 경로
-        config.setApplicationDestinationPrefixes("/app");  // 메시지 발행 경로
+        config.enableSimpleBroker("/topic");  // /topic으로 변경
+        config.setApplicationDestinationPrefixes("/app");
     }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("*")
-                .setHandshakeHandler(new DefaultHandshakeHandler());
-
+                .setHandshakeHandler(new DefaultHandshakeHandler())
+                .setAllowedOriginPatterns("*");
     }
 }
