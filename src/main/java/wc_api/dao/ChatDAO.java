@@ -16,7 +16,7 @@ public interface ChatDAO {
      * @param userId 사용자 ID
      * @return 해당 사용자의 채팅방 목록
      */
-    List<ChatRoom> findRoomsByUserId(String userId);
+    List<ChatRoom> findRoomsByUserId(int userId);
 
     /**
      * 새로운 채팅 메시지를 저장
@@ -36,5 +36,5 @@ public interface ChatDAO {
      * @param roomId
      * @param userId
      */
-    void updateMessagesReadStatus(String roomId, String userId);
+    void updateMessagesReadStatus(String roomId, int userId);
 }

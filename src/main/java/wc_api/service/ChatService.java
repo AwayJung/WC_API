@@ -15,7 +15,7 @@ public class ChatService {
     private final ChatDAO chatDAO;
 
     // 채팅방 생성
-    public ChatRoom createRoom(Long itemId, String sellerId, String buyerId) {
+    public ChatRoom createRoom(Long itemId, int sellerId, int buyerId) {
         ChatRoom room = new ChatRoom();
         room.setRoomId(UUID.randomUUID().toString());  // 랜덤 ID 생성
         room.setItemId(itemId);
@@ -28,7 +28,7 @@ public class ChatService {
 
 
     // 사용자의 채팅방 목록 조회
-    public List<ChatRoom> getRoomList(String userId) {
+    public List<ChatRoom> getRoomList(int userId) {
         return chatDAO.findRoomsByUserId(userId);
     }
 
@@ -44,7 +44,7 @@ public class ChatService {
     }
 
     // 메세지 읽음 표시
-    public void markMessageAsRead(String roomId, String userId) {
+    public void markMessageAsRead(String roomId, int userId) {
         chatDAO.updateMessagesReadStatus(roomId,userId);
     }
 }

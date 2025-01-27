@@ -22,7 +22,7 @@ public class WebSocketChatController {
     }
 
     @MessageMapping("/room/{roomId}/read")
-    public void markAsRead(@DestinationVariable String roomId, String userId) throws Exception {
+    public void markAsRead(@DestinationVariable String roomId, int userId) throws Exception {
         chatService.markMessageAsRead(roomId, userId);
     }
 }
