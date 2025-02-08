@@ -7,6 +7,7 @@ import wc_api.common.constant.ApiRespPolicy;
 import wc_api.common.model.response.ApiResp;
 import wc_api.model.db.chat.ChatMessage;
 import wc_api.model.db.chat.ChatRoom;
+import wc_api.model.request.ChatRoomCreateRequest;
 import wc_api.service.ChatService;
 
 import java.util.List;
@@ -18,12 +19,8 @@ public class ChatController {
 
     // 채팅방 생성
     @PostMapping("/")
-    public ResponseEntity<ApiResp> createRoom(@RequestBody ChatRoom chatRoom) {
-        ChatRoom room = chatService.createRoom(
-                chatRoom.getItemId(),
-                chatRoom.getSellerId(),
-                chatRoom.getBuyerId()
-        );
+    public ResponseEntity<ApiResp> createRoom(@RequestBody ChatRoomCreateRequest request) {
+        ChatRoom room = chatService.createRoom(request);
         return ResponseEntity
                 .status(ApiRespPolicy.SUCCESS_CREATED.getHttpStatus())
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS_CREATED, room));
@@ -35,7 +32,7 @@ public class ChatController {
      * 사용자의 채팅방 목록 조회
      * userId가 참여하는 모든 채팅방 목록 조회(채팅방의 기본 정보를 보여줌)
      */
-    @GetMapping("/user/{userId}")
+    @GetMapping("/rooms/user/{userId}")
     public ResponseEntity<ApiResp> getRoomList(@PathVariable int userId) {
         List<ChatRoom> rooms = chatService.getRoomList(userId);
         return ResponseEntity
@@ -58,15 +55,4 @@ public class ChatController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, messages));
     }
 
-
-////    @PostMapping("/{roomId}/messages")
-////    public ResponseEntity<ApiResp> sendMessage(
-////            @PathVariable String roomId,
-////            @RequestBody ChatMessage message) {
-////        message.setRoomId(roomId);
-////        ChatMessage savedMessage = chatService.sendMessage(message);
-////        return ResponseEntity
-////                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-////                .body(ApiResp.of(ApiRespPolicy.SUCCESS, savedMessage));
-////    }
 }
