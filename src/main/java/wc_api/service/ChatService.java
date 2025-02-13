@@ -7,9 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import wc_api.dao.ChatDAO;
 import wc_api.model.db.chat.ChatMessage;
 import wc_api.model.db.chat.ChatRoom;
-import wc_api.model.db.chat.ChatRoomUser;
-import wc_api.model.request.ChatRoomCreateRequest;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -19,80 +16,81 @@ import java.util.UUID;
 public class ChatService {
     private final ChatDAO chatDAO;
 
-    // 채팅방 생성
-    @Transactional
-    public ChatRoom createRoom(ChatRoomCreateRequest request) {
-        // 1. 판매자 ID 조회 (item의 seller_id)
-        int sellerId = chatDAO.findSellerIdByItemId(request.getItemId());
-
-        ChatRoom existingRoom = chatDAO.findRoomByItemAndUsers(request.getItemId(), request.getBuyerId());
-        if (existingRoom != null) {
-            return existingRoom;
-        }
-        // 2. chat_room 생성
-        ChatRoom room = new ChatRoom();
-        room.setRoomId(UUID.randomUUID().toString());
-        room.setItemId(request.getItemId());
-        chatDAO.createChatRoom(room);
-
-        // 3. chat_room_user에 구매자와 판매자 추가
-        ChatRoomUser buyer = new ChatRoomUser();
-        buyer.setRoomId(room.getRoomId());
-        buyer.setUserId(request.getBuyerId());
-        buyer.setUserType("B");
-        chatDAO.createChatRoomUser(buyer);
-
-        ChatRoomUser seller = new ChatRoomUser();
-        seller.setRoomId(room.getRoomId());
-        seller.setUserId(sellerId);
-        seller.setUserType("S");
-        chatDAO.createChatRoomUser(seller);
-
-        return room;
-    }
-
-    // 사용자의 채팅방 목록 조회
     @Transactional
     public List<ChatRoom> getRoomList(int userId) {
         return chatDAO.findRoomsByUserId(userId);
     }
 
-    // 채팅방 메시지 상세 조회
     @Transactional
     public List<ChatMessage> getRoomMessages(String roomId) {
         return chatDAO.findMessagesByRoomId(roomId);
     }
 
-    // 메세지 전송
     @Transactional
-    public ChatMessage sendMessage(ChatMessage message) {
-        // 시스템 메시지(JOIN, LEAVE)는 DB 저장하지 않고 바로 반환
-        if ("JOIN".equals(message.getType()) || "LEAVE".equals(message.getType())) {
-            message.setSentTime(LocalDateTime.now());
-            return message;
+    public ChatMessage sendMessage(ChatMessage message, Integer itemId) {
+        System.out.println("메소드 시작 - message: " + message);
+        System.out.println("받은 userId: " + message.getUserId());
+        System.out.println("받은 itemId: " + itemId);
+
+        // 신규 채팅방 생성 여부 확인 및 처리
+        if (itemId != null) {
+            ChatRoom chatRoom = chatDAO.findRoomByItemAndUsers(itemId, message.getUserId());
+            System.out.println("조회된 chatRoom: " + chatRoom);
+
+            if (chatRoom == null) {
+                // 새로운 채팅방 생성
+                int sellerId = chatDAO.findSellerIdByItemId(itemId);
+                System.out.println("조회된 sellerId: " + sellerId);
+
+                ChatRoom newRoom = new ChatRoom();
+                newRoom.setRoomId(UUID.randomUUID().toString());
+                newRoom.setItemId(itemId);
+                chatDAO.createChatRoom(newRoom);
+                System.out.println("생성된 newRoom: " + newRoom);
+
+                message.setRoomId(newRoom.getRoomId());
+            } else {
+                message.setRoomId(chatRoom.getRoomId());
+            }
         }
 
         try {
-            System.out.println("Before insert - message: " + message);
             message.setSentTime(LocalDateTime.now());
             message.setRead(false);
 
-            // TALK 타입일 때만 DB에 저장
             if ("TALK".equals(message.getType())) {
+                System.out.println("메시지 저장 직전 데이터: " + message);
                 chatDAO.insertMessage(message);
-                System.out.println("After insert - messageId: " + message.getMessageId());
-                chatDAO.linkMessageToRoom(message.getMessageId(), message.getRoomId());
+                System.out.println("저장된 메시지 ID: " + message.getMessageId());
+
+                if (message.getMessageId() > 0) {
+                    System.out.println("chat_room_user 저장 전 데이터:");
+                    System.out.println("roomId: " + message.getRoomId());
+                    System.out.println("userId: " + message.getUserId());
+                    System.out.println("messageId: " + message.getMessageId());
+
+                    // user_type은 SQL에서 자동으로 결정됨
+                    chatDAO.insertChatRoomUser(
+                            message.getRoomId(),
+                            message.getUserId(),
+                            null,
+                            message.getMessageId()
+                    );
+                }
             }
 
             return message;
         } catch (DataIntegrityViolationException e) {
-            // 이미 DB에 성공적으로 들어갔다면 예외를 무시
+            System.out.println("에러 발생: " + e.getMessage());
+            e.printStackTrace();
+
             if (message.getMessageId() > 0) {
                 return message;
             }
             throw e;
         }
     }
+
     // 메세지 읽음 표시
     @Transactional
     public void markMessageAsRead(String roomId, int userId) {

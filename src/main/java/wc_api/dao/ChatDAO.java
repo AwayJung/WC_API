@@ -64,5 +64,5 @@ public interface ChatDAO {
      */
     void updateMessagesReadStatus(String roomId, int userId);
 
-    void linkMessageToRoom(@Param("messageId") int messageId, @Param("roomId") String roomId);
+    void insertChatRoomUser(String roomId, int userId, String userType, int messageId);
 }

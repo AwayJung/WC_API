@@ -18,13 +18,13 @@ public class ChatController {
     private final ChatService chatService;
 
     // 채팅방 생성
-    @PostMapping("/")
-    public ResponseEntity<ApiResp> createRoom(@RequestBody ChatRoomCreateRequest request) {
-        ChatRoom room = chatService.createRoom(request);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS_CREATED.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS_CREATED, room));
-    }
+//    @PostMapping("/")
+//    public ResponseEntity<ApiResp> createRoom(@RequestBody ChatRoomCreateRequest request) {
+//        ChatRoom room = chatService.createRoom(request);
+//        return ResponseEntity
+//                .status(ApiRespPolicy.SUCCESS_CREATED.getHttpStatus())
+//                .body(ApiResp.of(ApiRespPolicy.SUCCESS_CREATED, room));
+//    }
 
     /**
      *

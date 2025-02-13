@@ -6,11 +6,21 @@ import java.time.LocalDateTime;
 
 @Data
 public class ChatMessage {
-    private int messageId;
+    private Integer messageId;
     private String content;
     private String type;
     private LocalDateTime sentTime;
     private boolean isRead;
     private String roomId;
-    private int senderId;
+    private Integer senderId;  // userId -> senderId로 변경
+    private String userType;
+
+    // getter/setter
+    public Integer getUserId() {  // 호환성을 위해 유지
+        return senderId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.senderId = userId;
+    }
 }
