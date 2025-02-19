@@ -1,6 +1,5 @@
 package wc_api.model.db.chat;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDateTime;
 
@@ -15,7 +14,6 @@ public class ChatMessage {
     private Integer senderId;  // userId -> senderId로 변경
     private String userType;
 
-    // getter/setter
     public Integer getUserId() {  // 호환성을 위해 유지
         return senderId;
     }

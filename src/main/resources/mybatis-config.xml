@@ -7,4 +7,8 @@
         <setting name="callSettersOnNulls" value="true"/>
         <setting name="jdbcTypeForNull" value="NULL"/>
     </settings>
+    <typeAliases>
+        <!-- Item 클래스에 대한 별칭 설정 -->
+        <typeAlias type="wc_api.model.db.item.Item" alias="Item"/>
+    </typeAliases>
 </configuration>
