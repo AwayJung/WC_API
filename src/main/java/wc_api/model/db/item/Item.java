@@ -11,6 +11,7 @@ public class Item {
     private String description;
     private int price;
     private LocalDateTime createdAt;
+    private String imageUrl;
 
     // 추가 필드 - JOIN 결과를 받기 위한 필드
     private String sellerEmail;

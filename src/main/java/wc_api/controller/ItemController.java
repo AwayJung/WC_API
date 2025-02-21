@@ -1,14 +1,18 @@
 package wc_api.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import wc_api.common.constant.ApiRespPolicy;
 import wc_api.common.model.response.ApiResp;
 import wc_api.model.db.item.Item;
 import wc_api.service.ItemService;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -19,16 +23,15 @@ public class ItemController {
     private final ItemService itemService;
 
     // 아이템 등록
-    @PostMapping("/")
-    public ResponseEntity<ApiResp> createItem(@RequestBody Item item) {
-        System.out.println("요청 받은 데이터: " + item);
-        System.out.println("sellerId: " + item.getSellerId());
-        System.out.println("description: " + item.getDescription());
-        System.out.println("price: " + item.getPrice());
-
+    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResp> createItemWithImage(
+            @RequestPart(value = "item") String itemStr,  // Item 대신 String으로 받고
+            @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
-            Item created = itemService.createItem(item);
-            System.out.println("생성된 아이템: " + created);
+            ObjectMapper mapper = new ObjectMapper();
+            Item item = mapper.readValue(itemStr, Item.class);  // 수동으로 변환
+
+            Item created = itemService.createItemWithImage(item, image);
             return ResponseEntity
                     .status(ApiRespPolicy.SUCCESS.getHttpStatus())
                     .body(ApiResp.of(ApiRespPolicy.SUCCESS, created));
@@ -38,6 +41,18 @@ public class ItemController {
             throw e;
         }
     }
+
+    // 아이템 이미지만 업데이트
+    @PutMapping(value = "/{itemId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResp> updateItemImage(
+            @PathVariable Long itemId,
+            @RequestPart("image") MultipartFile image) throws IOException {
+        Item updated = itemService.updateItemImage(itemId, image);
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, updated));
+    }
+
 
     // 아이템 상세 조회
     @GetMapping("/{itemId}")

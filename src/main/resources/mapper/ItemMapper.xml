@@ -5,27 +5,33 @@
     <!-- 아이템 생성 -->
     <insert id="insertItem" parameterType="Item" useGeneratedKeys="true" keyProperty="itemId">
         INSERT INTO item (
-            seller_id,
-            description,
-            price
+        seller_id,
+        description,
+        price,
+        image_url,      <!-- 이미지 URL 필드 추가 -->
+        created_at      <!-- 생성 시간 필드 추가 -->
         ) VALUES (
-                     #{sellerId},
-                     #{description},
-                     #{price}
-                 )
+        #{sellerId},
+        #{description},
+        #{price},
+        #{imageUrl},    <!-- 이미지 URL 값 추가 -->
+        #{createdAt}    <!-- 생성 시간 값 추가 -->
+        )
     </insert>
 
     <!-- 아이템 상세 조회 -->
     <select id="selectItem" parameterType="Long" resultType="Item">
         SELECT
-            i.item_id,
-            i.seller_id,
-            i.description,
-            i.price,
-            u.login_email as seller_email,
-            u.name as seller_name
+        i.item_id,
+        i.seller_id,
+        i.description,
+        i.price,
+        i.image_url,    <!-- 이미지 URL 필드 추가 -->
+        i.created_at,   <!-- 생성 시간 필드 추가 -->
+        u.login_email as seller_email,
+        u.name as seller_name
         FROM item i
-                 LEFT JOIN user u ON i.seller_id = u.id
+        LEFT JOIN user u ON i.seller_id = u.id
         WHERE i.item_id = #{itemId}
     </select>
 
@@ -36,19 +42,22 @@
         i.seller_id,
         i.description,
         i.price,
+        i.image_url,    <!-- 이미지 URL 필드 추가 -->
+        i.created_at,   <!-- 생성 시간 필드 추가 -->
         u.login_email as seller_email,
         u.name as seller_name
         FROM item i
         LEFT JOIN user u ON i.seller_id = u.id
-        ORDER BY i.item_id DESC  <!-- created_at 대신 item_id로 정렬 -->
+        ORDER BY i.item_id DESC
     </select>
 
     <!-- 아이템 수정 -->
     <update id="updateItem" parameterType="Item">
         UPDATE item
         SET
-            description = #{description},
-            price = #{price}
+        description = #{description},
+        price = #{price},
+        image_url = #{imageUrl}    <!-- 이미지 URL 필드 추가 -->
         WHERE item_id = #{itemId}
     </update>
 
