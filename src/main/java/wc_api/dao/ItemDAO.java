@@ -21,4 +21,5 @@ public interface ItemDAO {
 
     // 아이템 삭제
     void deleteItem(Long itemId);
+
 }

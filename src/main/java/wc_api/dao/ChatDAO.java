@@ -35,7 +35,8 @@ public interface ChatDAO {
      * @param buyerId 구매자 ID
      * @return 존재하는 채팅방 정보
      */
-    ChatRoom findRoomByItemAndUsers(int itemId, int buyerId);
+    // ChatDAO.java
+    ChatRoom findRoomByItemAndUsers(@Param("itemId") Integer itemId, @Param("userId") Integer userId);
 
     /**
      * 사용자의 채팅방 목록 조회
@@ -64,5 +65,21 @@ public interface ChatDAO {
      */
     void updateMessagesReadStatus(String roomId, int userId);
 
+    /**
+     * 채팅방 사용자 정보와 메시지 추가
+     */
     void insertChatRoomUser(String roomId, int userId, String userType, int messageId);
+
+    /**
+     * 채팅방에서 사용자 타입 조회
+     */
+    String findUserTypeInRoom(String roomId, Integer userId);
+
+    /**
+     * 채팅방 ID로 채팅방 정보 조회
+     */
+    ChatRoom findRoomById(String roomId);
+
+    // ChatDAO 인터페이스에 추가
+    int countByMessageId(int messageId);
 }

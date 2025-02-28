@@ -22,7 +22,7 @@ jwt:
 app:
   config:
     file:
-      path: /Users/wonjung/Workspace/Intellij/Practice/Be/Upload/
+      path: /Users/wonjung/Workspace/Intellij/Practice/Be/WC_API/uploads/items/
 
 logging:
   config: classpath:log4j2.xml

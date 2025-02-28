@@ -1,6 +1,5 @@
 package wc_api.controller;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,13 +22,17 @@ public class ItemController {
     private final ItemService itemService;
 
     // 아이템 등록
-    @PostMapping(value = "/", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(
+            value = "/",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<ApiResp> createItemWithImage(
-            @RequestPart(value = "item") String itemStr,  // Item 대신 String으로 받고
+            @RequestPart(value = "item") String itemStr,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            Item item = mapper.readValue(itemStr, Item.class);  // 수동으로 변환
+            Item item = mapper.readValue(itemStr, Item.class);
 
             Item created = itemService.createItemWithImage(item, image);
             return ResponseEntity
@@ -52,7 +55,6 @@ public class ItemController {
                 .status(ApiRespPolicy.SUCCESS.getHttpStatus())
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, updated));
     }
-
 
     // 아이템 상세 조회
     @GetMapping("/{itemId}")

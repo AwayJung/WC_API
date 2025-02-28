@@ -9,4 +9,6 @@ public class ChatRoom {
     private String roomId;
     private int itemId;
     private LocalDateTime createdAt;
+    private String description;
+    private int price;
 }
