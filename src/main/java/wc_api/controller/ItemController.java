@@ -17,13 +17,38 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "http://localhost:3000"})
 public class ItemController {
 
     private final ItemService itemService;
 
-    // 아이템 등록
+    // 아이템 등록 (다중 이미지 처리)
     @PostMapping(
             value = "/",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResp> createItemWithImages(
+            @RequestPart(value = "item") String itemStr,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Item item = mapper.readValue(itemStr, Item.class);
+
+            Item created = itemService.createItemWithImages(item, images);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, created));
+        } catch (Exception e) {
+            System.out.println("에러 발생: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    // 단일 이미지 처리 메소드 (기존 코드 호환성)
+    @PostMapping(
+            value = "/single",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )

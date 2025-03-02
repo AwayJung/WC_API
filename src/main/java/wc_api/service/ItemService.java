@@ -1,88 +1,131 @@
 package wc_api.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wc_api.dao.ItemDAO;
 import wc_api.model.db.item.Item;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ItemService {
 
     private final ItemDAO itemDAO;
+    private final ImageService imageService;
+    private final ObjectMapper objectMapper;
 
-    @Value("${app.config.file.path}")
-    private String uploadPath;
-
-    // 아이템 생성 (이미지 포함)
-    public Item createItemWithImage(Item item, MultipartFile image) throws IOException {
+    // 다중 이미지로 아이템 생성
+    public Item createItemWithImages(Item item, List<MultipartFile> images) throws IOException {
         item.setCreatedAt(LocalDateTime.now());
 
-        if (image != null && !image.isEmpty()) {
-            String imageUrl = saveImage(image);
-            item.setImageUrl(imageUrl);
+        if (images != null && !images.isEmpty()) {
+            List<String> imageUrls = new ArrayList<>();
+
+            // 첫 번째 이미지는 대표 이미지로 설정
+            String mainImageName = imageService.storeImage(images.get(0));
+            item.setImageUrl("/images/" + mainImageName);
+
+            // 나머지 이미지 처리
+            for (int i = 1; i < images.size(); i++) {
+                if (!images.get(i).isEmpty()) {
+                    String imageName = imageService.storeImage(images.get(i));
+                    imageUrls.add("/images/" + imageName);
+                }
+            }
+
+            // 추가 이미지가 있으면 JSON으로 저장
+            if (!imageUrls.isEmpty()) {
+                item.setAdditionalImages(objectMapper.writeValueAsString(imageUrls));
+            }
         }
 
         itemDAO.insertItem(item);
-        return itemDAO.selectItem(item.getItemId());
+        return getItemWithImageList(item.getItemId());
     }
 
-    // 이미지 저장
-    private String saveImage(MultipartFile file) throws IOException {
-        if (file.isEmpty()) return null;
-
-        String originalFilename = file.getOriginalFilename();
-        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        String filename = UUID.randomUUID() + fileExtension;
-
-        File saveFile = new File(uploadPath, filename);
-        file.transferTo(saveFile);
-
-        // 이미지 URL 경로 추가
-        return "/images/" + filename;
-    }
-
-    // 아이템 이미지만 업데이트
-    public Item updateItemImage(Long itemId, MultipartFile image) throws IOException {
-        Item existingItem = itemDAO.selectItem(itemId);
-        if (existingItem == null) {
-            throw new IllegalArgumentException("Item not found with id: " + itemId);
+    // 기존 단일 이미지 메소드 (하위 호환성)
+    public Item createItemWithImage(Item item, MultipartFile image) throws IOException {
+        List<MultipartFile> images = new ArrayList<>();
+        if (image != null && !image.isEmpty()) {
+            images.add(image);
         }
-
-        // 기존 이미지가 있다면 삭제
-        if (existingItem.getImageUrl() != null) {
-            String filename = existingItem.getImageUrl().replace("/images/", "");  // /images/ 경로 제거
-            new File(uploadPath, filename).delete();  // 올바른 경로 조합
-        }
-
-        // 새 이미지 저장
-        String newImageUrl = saveImage(image);
-        existingItem.setImageUrl(newImageUrl);
-
-        itemDAO.updateItem(existingItem);
-        return itemDAO.selectItem(itemId);
+        return createItemWithImages(item, images);
     }
 
-    // 아이템 조회
-    public Item getItem(Long itemId) {
+    // 아이템 조회 시 이미지 목록 설정
+    private Item getItemWithImageList(Long itemId) {
         Item item = itemDAO.selectItem(itemId);
         if (item == null) {
             throw new IllegalArgumentException("Item not found with id: " + itemId);
         }
+
+        List<String> imageUrls = new ArrayList<>();
+
+        // 추가 이미지가 있으면 파싱
+        if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
+            try {
+                imageUrls = objectMapper.readValue(
+                        item.getAdditionalImages(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                );
+            } catch (Exception e) {
+                System.err.println("Error parsing additional images: " + e.getMessage());
+            }
+        }
+
+        item.setImageUrlList(imageUrls);
         return item;
+    }
+
+    // 아이템 조회
+    public Item getItem(Long itemId) {
+        return getItemWithImageList(itemId);
     }
 
     // 아이템 목록 조회
     public List<Item> getItemList() {
-        return itemDAO.selectItemList();
+        List<Item> items = itemDAO.selectItemList();
+
+        // 각 아이템의 이미지 리스트 설정
+        for (Item item : items) {
+            if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(
+                            item.getAdditionalImages(),
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                    );
+                    item.setImageUrlList(imageUrls);
+                } catch (Exception e) {
+                    System.err.println("Error parsing additional images: " + e.getMessage());
+                    item.setImageUrlList(new ArrayList<>());
+                }
+            } else {
+                item.setImageUrlList(new ArrayList<>());
+            }
+        }
+
+        return items;
+    }
+
+    // 이미지 URL에서 파일명 추출
+    private String getImageNameFromUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            return null;
+        }
+
+        if (imageUrl.startsWith("/images/")) {
+            return imageUrl.substring("/images/".length());
+        } else if (imageUrl.startsWith("/images/")) {
+            return imageUrl.substring("/images/".length());
+        }
+
+        return imageUrl;
     }
 
     // 아이템 정보 업데이트
@@ -92,11 +135,20 @@ public class ItemService {
             throw new IllegalArgumentException("Item not found with id: " + item.getItemId());
         }
 
-        item.setImageUrl(existingItem.getImageUrl());
+        // 이미지 URL 유지
+        if (item.getImageUrl() == null || item.getImageUrl().isEmpty()) {
+            item.setImageUrl(existingItem.getImageUrl());
+        }
+
+        // 추가 이미지 유지
+        if (item.getAdditionalImages() == null) {
+            item.setAdditionalImages(existingItem.getAdditionalImages());
+        }
+
         item.setCreatedAt(existingItem.getCreatedAt());
 
         itemDAO.updateItem(item);
-        return itemDAO.selectItem(item.getItemId());
+        return getItemWithImageList(item.getItemId());
     }
 
     // 아이템 삭제
@@ -106,12 +158,99 @@ public class ItemService {
             throw new IllegalArgumentException("Item not found with id: " + itemId);
         }
 
-        // 이미지가 있다면 삭제
-        if (existingItem.getImageUrl() != null) {
-            String filename = existingItem.getImageUrl().replace("/images/", "");
-            new File(uploadPath, filename).delete();
+        // 대표 이미지 삭제
+        if (existingItem.getImageUrl() != null && !existingItem.getImageUrl().isEmpty()) {
+            String filename = getImageNameFromUrl(existingItem.getImageUrl());
+            if (filename != null) {
+                try {
+                    imageService.deleteImage(filename);
+                } catch (IOException e) {
+                    System.err.println("Error deleting image: " + e.getMessage());
+                }
+            }
+        }
+
+        // 추가 이미지들 삭제
+        if (existingItem.getAdditionalImages() != null && !existingItem.getAdditionalImages().isEmpty()) {
+            try {
+                List<String> imageUrls = objectMapper.readValue(
+                        existingItem.getAdditionalImages(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                );
+
+                for (String url : imageUrls) {
+                    String filename = getImageNameFromUrl(url);
+                    if (filename != null) {
+                        try {
+                            imageService.deleteImage(filename);
+                        } catch (IOException e) {
+                            System.err.println("Error deleting additional image: " + e.getMessage());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing additional images: " + e.getMessage());
+            }
         }
 
         itemDAO.deleteItem(itemId);
+    }
+
+    // 아이템 이미지 업데이트
+    public Item updateItemImage(Long itemId, MultipartFile image) throws IOException {
+        List<MultipartFile> images = new ArrayList<>();
+        if (image != null && !image.isEmpty()) {
+            images.add(image);
+        }
+
+        Item existingItem = itemDAO.selectItem(itemId);
+        if (existingItem == null) {
+            throw new IllegalArgumentException("Item not found with id: " + itemId);
+        }
+
+        // 기존 이미지 삭제
+        if (existingItem.getImageUrl() != null && !existingItem.getImageUrl().isEmpty()) {
+            String filename = getImageNameFromUrl(existingItem.getImageUrl());
+            if (filename != null) {
+                imageService.deleteImage(filename);
+            }
+        }
+
+        // 기존 추가 이미지들 삭제
+        if (existingItem.getAdditionalImages() != null && !existingItem.getAdditionalImages().isEmpty()) {
+            try {
+                List<String> imageUrls = objectMapper.readValue(
+                        existingItem.getAdditionalImages(),
+                        objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                );
+
+                for (String url : imageUrls) {
+                    String filename = getImageNameFromUrl(url);
+                    if (filename != null) {
+                        try {
+                            imageService.deleteImage(filename);
+                        } catch (IOException e) {
+                            System.err.println("Error deleting additional image: " + e.getMessage());
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println("Error parsing additional images: " + e.getMessage());
+            }
+        }
+
+        // 새 이미지 설정
+        if (!images.isEmpty()) {
+            String imageName = imageService.storeImage(images.get(0));
+            existingItem.setImageUrl("/api/images/" + imageName);
+        } else {
+            existingItem.setImageUrl(null);
+        }
+
+        // 추가 이미지 초기화
+        existingItem.setAdditionalImages(null);
+
+        itemDAO.updateItem(existingItem);
+        return getItemWithImageList(itemId);
     }
 }

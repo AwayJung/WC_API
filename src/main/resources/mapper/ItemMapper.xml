@@ -10,7 +10,8 @@
             price,
             image_url,
             created_at,
-            title
+            title,
+            additional_images
         )
         VALUES (
                    #{sellerId},
@@ -18,7 +19,8 @@
                    #{price},
                    #{imageUrl},
                    #{createdAt},
-                   #{title}
+                   #{title},
+                   #{additionalImages}
                )
     </insert>
 
@@ -32,6 +34,7 @@
             i.image_url,
             i.created_at,
             i.title,
+            i.additional_images,
             u.login_email as seller_email,
             u.name as seller_name
         FROM item i
@@ -49,6 +52,7 @@
             i.image_url,
             i.created_at,
             i.title,
+            i.additional_images,
             u.login_email as seller_email,
             u.name as seller_name
         FROM item i
@@ -63,7 +67,8 @@
             description = #{description},
             price = #{price},
             image_url = #{imageUrl},
-            title = #{title}
+            title = #{title},
+            additional_images = #{additionalImages}
         WHERE item_id = #{itemId}
     </update>
 
