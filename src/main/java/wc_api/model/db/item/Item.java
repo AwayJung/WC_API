@@ -16,6 +16,7 @@ public class Item {
     private String additionalImages; // 추가된 필드: 추가 이미지 URL들을 JSON 형태로 저장
     private Boolean priceFlexible;
     private String category;
+    private int viewCount; // 조회수 필드 추가
 
     // 추가 필드 - JOIN 결과를 받기 위한 필드
     private String sellerEmail;

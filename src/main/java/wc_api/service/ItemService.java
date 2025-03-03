@@ -2,6 +2,9 @@ package wc_api.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import wc_api.dao.ItemDAO;
@@ -12,9 +15,12 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 @Service
 @RequiredArgsConstructor
 public class ItemService {
+    private static final Logger logger = LoggerFactory.getLogger(ItemService.class);
 
     private final ItemDAO itemDAO;
     private final ImageService imageService;
@@ -83,8 +89,13 @@ public class ItemService {
         return item;
     }
 
-    // 아이템 조회
-    public Item getItem(Long itemId) {
+    // 아이템 조회 + 조회수 증가
+    public Item getItemAndIncrementViewCount(Long itemId) {
+        // 조회수 증가
+        itemDAO.updateViewCount(itemId);
+
+        logger.debug("조회수 증가 시도: {}", itemId);
+        // 업데이트된 아이템 정보 가져오기
         return getItemWithImageList(itemId);
     }
 

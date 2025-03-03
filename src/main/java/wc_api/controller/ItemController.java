@@ -84,7 +84,7 @@ public class ItemController {
     // 아이템 상세 조회
     @GetMapping("/{itemId}")
     public ResponseEntity<ApiResp> getItem(@PathVariable Long itemId) {
-        Item item = itemService.getItem(itemId);
+        Item item = itemService.getItemAndIncrementViewCount(itemId);
         return ResponseEntity
                 .status(ApiRespPolicy.SUCCESS.getHttpStatus())
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, item));

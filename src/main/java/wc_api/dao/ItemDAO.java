@@ -22,4 +22,6 @@ public interface ItemDAO {
     // 아이템 삭제
     void deleteItem(Long itemId);
 
+    // 조회수 증가 메소드 추가
+    void updateViewCount(Long itemId);
 }

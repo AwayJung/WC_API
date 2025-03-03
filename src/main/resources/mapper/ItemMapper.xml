@@ -42,6 +42,13 @@
         WHERE i.item_id = #{itemId}
     </select>
 
+    <!-- 조회수 증가 -->
+    <update id="updateViewCount" parameterType="Long">
+        UPDATE item
+        SET view_count = view_count + 1
+        WHERE item_id = #{itemId}
+    </update>
+
     <!-- 아이템 목록 조회 -->
     <select id="selectItemList" resultType="Item">
         SELECT
