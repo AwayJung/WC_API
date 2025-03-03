@@ -23,4 +23,7 @@ public class Item {
 
     // 조회 결과용 필드 - 추가 이미지 URL 리스트
     private List<String> imageUrlList;
+
+    // 수정 요청 시 유지할 이미지 ID 목록
+    private List<String> imageIds;
 }

@@ -253,4 +253,113 @@ public class ItemService {
         itemDAO.updateItem(existingItem);
         return getItemWithImageList(itemId);
     }
+
+    // 아이템과 다중 이미지를 함께 업데이트
+    public Item updateItemWithImages(Item item, List<MultipartFile> images) throws IOException {
+        Item existingItem = itemDAO.selectItem(item.getItemId());
+        if (existingItem == null) {
+            throw new IllegalArgumentException("Item not found with id: " + item.getItemId());
+        }
+
+        // 생성일자 유지
+        item.setCreatedAt(existingItem.getCreatedAt());
+
+        // 이미지 관련 처리가 필요한지 확인
+        boolean needImageUpdate = (images != null && !images.isEmpty()) ||
+                (item.getImageIds() != null && !item.getImageIds().isEmpty());
+
+        if (needImageUpdate) {
+            // 기존 이미지 URL 및 추가 이미지 목록 가져오기
+            List<String> existingImages = new ArrayList<>();
+            if (existingItem.getImageUrl() != null && !existingItem.getImageUrl().isEmpty()) {
+                existingImages.add(existingItem.getImageUrl());
+            }
+
+            if (existingItem.getAdditionalImages() != null && !existingItem.getAdditionalImages().isEmpty()) {
+                try {
+                    List<String> additionalImageUrls = objectMapper.readValue(
+                            existingItem.getAdditionalImages(),
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                    );
+                    existingImages.addAll(additionalImageUrls);
+                } catch (Exception e) {
+                    System.err.println("Error parsing additional images: " + e.getMessage());
+                }
+            }
+
+            // 유지할 이미지와 삭제할 이미지 분리
+            List<String> imagesToKeep = new ArrayList<>();
+            List<String> imagesToDelete = new ArrayList<>();
+
+            // 유지할 이미지 ID 목록이 있는 경우
+            if (item.getImageIds() != null && !item.getImageIds().isEmpty()) {
+                // 이미지 ID를 기반으로 유지할 이미지 URL 찾기
+                for (String existingUrl : existingImages) {
+                    String fileName = getImageNameFromUrl(existingUrl);
+                    if (item.getImageIds().contains(fileName)) {
+                        imagesToKeep.add(existingUrl);
+                    } else {
+                        imagesToDelete.add(existingUrl);
+                    }
+                }
+            } else {
+                // 유지할 이미지 ID 목록이 없으면 모든 기존 이미지 삭제
+                imagesToDelete.addAll(existingImages);
+                imagesToKeep.clear();
+            }
+
+            // 삭제할 이미지 처리
+            for (String imageUrl : imagesToDelete) {
+                String fileName = getImageNameFromUrl(imageUrl);
+                if (fileName != null) {
+                    try {
+                        imageService.deleteImage(fileName);
+                    } catch (IOException e) {
+                        System.err.println("Error deleting image: " + e.getMessage());
+                    }
+                }
+            }
+
+            // 새 이미지 저장
+            List<String> newImageUrls = new ArrayList<>();
+            if (images != null) {
+                for (MultipartFile imageFile : images) {
+                    if (imageFile != null && !imageFile.isEmpty()) {
+                        String imageName = imageService.storeImage(imageFile);
+                        newImageUrls.add("/images/" + imageName);
+                    }
+                }
+            }
+
+            // 유지할 이미지와 새 이미지 합치기
+            List<String> allImages = new ArrayList<>();
+            allImages.addAll(imagesToKeep);
+            allImages.addAll(newImageUrls);
+
+            // 이미지가 있는 경우 첫 번째 이미지를 대표 이미지로 설정
+            if (!allImages.isEmpty()) {
+                item.setImageUrl(allImages.get(0));
+
+                // 나머지 이미지가 있으면 추가 이미지로 설정
+                if (allImages.size() > 1) {
+                    List<String> additionalImages = allImages.subList(1, allImages.size());
+                    item.setAdditionalImages(objectMapper.writeValueAsString(additionalImages));
+                } else {
+                    item.setAdditionalImages(null);
+                }
+            } else {
+                // 이미지가 없는 경우
+                item.setImageUrl(null);
+                item.setAdditionalImages(null);
+            }
+        } else {
+            // 이미지 파일이 없는 경우, 기존 이미지 정보 유지
+            item.setImageUrl(existingItem.getImageUrl());
+            item.setAdditionalImages(existingItem.getAdditionalImages());
+        }
+
+        // 아이템 정보 업데이트
+        itemDAO.updateItem(item);
+        return getItemWithImageList(item.getItemId());
+    }
 }

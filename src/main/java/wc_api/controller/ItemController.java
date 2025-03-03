@@ -99,14 +99,32 @@ public class ItemController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
     }
 
-    // 아이템 수정
-    @PutMapping("/{itemId}")
-    public ResponseEntity<ApiResp> updateItem(@PathVariable Long itemId, @RequestBody Item item) {
-        item.setItemId(itemId);
-        Item updated = itemService.updateItem(item);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS, updated));
+    // 아이템 수정 (다중 이미지 처리)
+    @PutMapping(
+            value = "/{itemId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResp> updateItem(
+            @PathVariable Long itemId,
+            @RequestPart(value = "item") String itemStr,
+            @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Item item = mapper.readValue(itemStr, Item.class);
+            item.setItemId(itemId);
+
+            Item updated = itemService.updateItemWithImages(item, images);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, updated));
+        } catch (Exception e) {
+            System.out.println("에러 발생: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_SYSTEM.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_SYSTEM, e.getMessage()));
+        }
     }
 
     // 아이템 삭제
