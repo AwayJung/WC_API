@@ -33,15 +33,19 @@ public class ItemLikeService {
             throw new IllegalArgumentException("Item not found with id: " + itemId);
         }
 
-        // 이미 좋아요를 했는지 확인
-        boolean exists = itemLikeDAO.countItemLike(userId, itemId) > 0;
+        // 레코드 존재 여부 확인 (is_liked 값에 상관없이)
+        boolean recordExists = itemLikeDAO.checkRecordExists(userId, itemId);
 
-        if (exists) {
-            // 좋아요가 이미 있으면 삭제 (취소)
-            itemLikeDAO.deleteItemLike(userId, itemId);
-            return false;
+        if (recordExists) {
+            // 현재 좋아요 상태 확인
+            boolean isCurrentlyLiked = itemLikeDAO.getItemLikeStatus(userId, itemId);
+            // 상태 반전
+            boolean newStatus = !isCurrentlyLiked;
+            // 상태 업데이트
+            itemLikeDAO.updateItemLikeStatus(userId, itemId, newStatus);
+            return newStatus;
         } else {
-            // 좋아요가 없으면 추가
+            // 좋아요 레코드가 없으면 추가
             itemLikeDAO.insertItemLike(userId, itemId);
             return true;
         }

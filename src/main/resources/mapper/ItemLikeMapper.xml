@@ -8,12 +8,12 @@
         VALUES (#{userId}, #{itemId}, 1)
     </insert>
 
-    <!-- 좋아요 삭제 -->
-    <delete id="deleteItemLike">
-        UPDATE item_like
-        SET is_liked = 0
+    <!-- 레코드 존재 여부 확인 (상태와 상관없이) -->
+    <select id="checkRecordExists" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM item_like
         WHERE user_id = #{userId} AND item_id = #{itemId}
-    </delete>
+    </select>
 
     <!-- 좋아요 여부 확인 -->
     <select id="countItemLike" resultType="int">
@@ -35,5 +35,16 @@
         FROM item_like
         WHERE user_id = #{userId} AND is_liked = 1
     </select>
+    <!-- 좋아요 상태 조회 -->
+    <select id="getItemLikeStatus" resultType="boolean">
+        SELECT is_liked FROM item_like WHERE user_id = #{userId} AND item_id = #{itemId}
+    </select>
+
+    <!-- 좋아요 상태 업데이트 -->
+    <update id="updateItemLikeStatus">
+        UPDATE item_like
+        SET is_liked = #{status}
+        WHERE user_id = #{userId} AND item_id = #{itemId}
+    </update>
 
 </mapper>
