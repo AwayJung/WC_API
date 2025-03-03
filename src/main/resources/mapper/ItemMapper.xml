@@ -35,6 +35,7 @@
             i.created_at,
             i.title,
             i.additional_images,
+            i.view_count,
             u.login_email as seller_email,
             u.name as seller_name
         FROM item i
@@ -60,6 +61,7 @@
             i.created_at,
             i.title,
             i.additional_images,
+            i.view_count,
             u.login_email as seller_email,
             u.name as seller_name
         FROM item i

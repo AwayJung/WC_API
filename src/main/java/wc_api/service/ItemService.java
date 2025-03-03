@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import wc_api.dao.ItemDAO;
 import wc_api.model.db.item.Item;
@@ -27,6 +28,7 @@ public class ItemService {
     private final ObjectMapper objectMapper;
 
     // 다중 이미지로 아이템 생성
+    @Transactional
     public Item createItemWithImages(Item item, List<MultipartFile> images) throws IOException {
         item.setCreatedAt(LocalDateTime.now());
 
@@ -56,6 +58,7 @@ public class ItemService {
     }
 
     // 기존 단일 이미지 메소드 (하위 호환성)
+    @Transactional
     public Item createItemWithImage(Item item, MultipartFile image) throws IOException {
         List<MultipartFile> images = new ArrayList<>();
         if (image != null && !image.isEmpty()) {
@@ -90,6 +93,7 @@ public class ItemService {
     }
 
     // 아이템 조회 + 조회수 증가
+    @Transactional
     public Item getItemAndIncrementViewCount(Long itemId) {
         // 조회수 증가
         itemDAO.updateViewCount(itemId);
@@ -100,6 +104,7 @@ public class ItemService {
     }
 
     // 아이템 목록 조회
+    @Transactional
     public List<Item> getItemList() {
         List<Item> items = itemDAO.selectItemList();
 
@@ -125,6 +130,7 @@ public class ItemService {
     }
 
     // 이미지 URL에서 파일명 추출
+
     private String getImageNameFromUrl(String imageUrl) {
         if (imageUrl == null || imageUrl.isEmpty()) {
             return null;
@@ -140,6 +146,7 @@ public class ItemService {
     }
 
     // 아이템 정보 업데이트
+    @Transactional
     public Item updateItem(Item item) {
         Item existingItem = itemDAO.selectItem(item.getItemId());
         if (existingItem == null) {
@@ -163,6 +170,7 @@ public class ItemService {
     }
 
     // 아이템 삭제
+    @Transactional
     public void deleteItem(Long itemId) {
         Item existingItem = itemDAO.selectItem(itemId);
         if (existingItem == null) {
@@ -208,6 +216,7 @@ public class ItemService {
     }
 
     // 아이템 이미지 업데이트
+    @Transactional
     public Item updateItemImage(Long itemId, MultipartFile image) throws IOException {
         List<MultipartFile> images = new ArrayList<>();
         if (image != null && !image.isEmpty()) {
@@ -266,6 +275,7 @@ public class ItemService {
     }
 
     // 아이템과 다중 이미지를 함께 업데이트
+    @Transactional
     public Item updateItemWithImages(Item item, List<MultipartFile> images) throws IOException {
         Item existingItem = itemDAO.selectItem(item.getItemId());
         if (existingItem == null) {
