@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import wc_api.common.constant.ApiRespPolicy;
 import wc_api.common.model.response.ApiResp;
 import wc_api.model.db.item.Item;
+import wc_api.service.ItemLikeService;
 import wc_api.service.ItemService;
 
 import java.io.IOException;
@@ -21,6 +22,41 @@ import java.util.List;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemLikeService itemLikeService;
+
+    @PostMapping("/{itemId}/like")
+    public ResponseEntity<ApiResp> toggleItemLike(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
+    ) {
+        boolean isLiked = itemLikeService.toggleItemLike(userId, itemId);
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, isLiked));
+    }
+
+    // 내 찜 목록 조회
+    @GetMapping("/my-likes")
+    public ResponseEntity<ApiResp> getMyLikedItems(
+            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
+    ) {
+        List<Item> likedItems = itemLikeService.getMyLikedItems(userId);
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, likedItems));
+    }
+
+    // 아이템 상세 조회 시 해당 아이템의 찜 상태도 함께 반환
+    @GetMapping("/{itemId}/like-status")
+    public ResponseEntity<ApiResp> getItemWithLikeStatus(
+            @PathVariable Long itemId,
+            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
+    ) {
+        Item itemDetail = itemLikeService.getItemDetailWithLikeStatus(itemId, userId);
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, itemDetail));
+    }
 
     // 아이템 등록 (다중 이미지 처리)
     @PostMapping(
