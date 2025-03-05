@@ -14,8 +14,6 @@ public class Item {
     private String imageUrl;
     private String title;
     private String additionalImages; // 추가된 필드: 추가 이미지 URL들을 JSON 형태로 저장
-    private Boolean priceFlexible;
-    private String category;
     private int viewCount; // 조회수 필드 추가
     private Boolean isLiked;  // 현재 사용자의 찜 상태
     private Long likeCount;  // 해당 아이템의 전체 찜 횟수
