@@ -128,4 +128,32 @@ public class UserService {
             throw e;
         }
     }
+
+    /**
+     * 로그아웃
+     *
+     * @param accessToken 액세스토큰
+     * @throws CommonApiException with {@link ApiRespPolicy#ERR_NOT_AUTHENTICATED} 인증되지 않은 유저일 때
+     */
+    @Transactional
+    public void logout(String accessToken) throws Exception {
+        try {
+            if (accessToken == null || accessToken.isEmpty()) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 토큰에서 이메일 추출
+            String loginEmail = jwtUtil.extractLoginEmail(accessToken);
+            if (loginEmail == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // Refresh Token 삭제 (DB에서 null로 설정)
+            userDAO.updateRefreshToken(loginEmail, null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }

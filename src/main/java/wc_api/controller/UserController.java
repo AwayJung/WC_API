@@ -63,4 +63,21 @@ public class UserController {
         UserResp result = userService.refresh(refreshToken);
         return ResponseEntity.status(ApiRespPolicy.SUCCESS_ISSUE_TOKEN.getHttpStatus()).body(ApiResp.of(ApiRespPolicy.SUCCESS_ISSUE_TOKEN, result));
     }
+
+    /**
+     * 로그아웃
+     *
+     * @param request HTTP 요청 객체, accessToken을 헤더에서 추출
+     * @return 로그아웃 성공 여부
+     */
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResp> logout(HttpServletRequest request) throws Exception {
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
+        userService.logout(accessToken);
+        return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus()).body(ApiResp.of(ApiRespPolicy.SUCCESS));
+    }
+
 }

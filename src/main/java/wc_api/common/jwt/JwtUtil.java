@@ -17,6 +17,9 @@ public class JwtUtil {
     private static final long ACCESS_TOKEN_EXPIRED_MS = 1000L * 60 * 60; // 1 시간
     private static final long REFRESH_TOKEN_EXPIRED_MS = 1000L * 60 * 60 * 24 * 7; // 7 일
 
+//    private static final long ACCESS_TOKEN_EXPIRED_MS = 1000L * 20; // 20초
+//    private static final long REFRESH_TOKEN_EXPIRED_MS = 1000L * 40; // 40초
+
     // accessToken 생성
     public String createAccessToken(String loginEmail) {
         return createJwt(loginEmail, ACCESS_TOKEN_EXPIRED_MS);
