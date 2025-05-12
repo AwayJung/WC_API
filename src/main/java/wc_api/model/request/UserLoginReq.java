@@ -12,6 +12,6 @@ public class UserLoginReq {
     private String loginEmail;
 
     @NotBlank
-    @Size(min = 8, max = 20)
+    @Size(min = 1, max = 20)
     private String password;
 }
