@@ -13,4 +13,16 @@
         SELECT id , name , login_email AS "loginEmail", password FROM user WHERE login_email = #{loginEmail}
     </select>
 
+    <update id="updateRefreshToken" >
+        UPDATE user SET refresh_token = #{refreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP WHERE login_email = #{loginEmail}
+    </update>
+
+    <update id="storeRefreshToken" >
+        UPDATE user SET refresh_token = #{newRefreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP  WHERE login_email= #{loginEmail}
+    </update>
+
+    <select id="getStoredRefreshToken">
+        SELECT refresh_token FROM user WHERE login_email = #{loginEmail}
+    </select>
+
 </mapper>
