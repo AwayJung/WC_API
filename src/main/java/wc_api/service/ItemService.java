@@ -383,4 +383,53 @@ public class ItemService {
         itemDAO.updateItem(item);
         return getItemWithImageList(item.getItemId());
     }
+
+    @Transactional
+    public List<Item> getItemsBySellerId(Long sellerId) {
+        List<Item> items = itemDAO.selectItemsBySellerId(sellerId);
+
+        // 각 아이템의 이미지 리스트 설정
+        for (Item item : items) {
+            if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(
+                            item.getAdditionalImages(),
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                    );
+                    item.setImageUrlList(imageUrls);
+                } catch (Exception e) {
+                    System.err.println("Error parsing additional images: " + e.getMessage());
+                    item.setImageUrlList(new ArrayList<>());
+                }
+            } else {
+                item.setImageUrlList(new ArrayList<>());
+            }
+        }
+
+        return items;
+    }
+    @Transactional
+    public List<Item> getItemsByCategory(Long categoryId) {
+        List<Item> items = itemDAO.selectItemsByCategory(categoryId);
+
+        // 각 아이템의 이미지 리스트 설정 (getItemList와 동일한 로직)
+        for (Item item : items) {
+            if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(
+                            item.getAdditionalImages(),
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                    );
+                    item.setImageUrlList(imageUrls);
+                } catch (Exception e) {
+                    System.err.println("Error parsing additional images: " + e.getMessage());
+                    item.setImageUrlList(new ArrayList<>());
+                }
+            } else {
+                item.setImageUrlList(new ArrayList<>());
+            }
+        }
+
+        return items;
+    }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="wc_api.dao.CategoryDAO">
+    <!-- 결과 매핑 -->
+    <resultMap id="CategoryResultMap" type="wc_api.model.db.category.Category">
+        <id property="id" column="id" />
+        <result property="name" column="name" />
+    </resultMap>
+
+    <!-- 모든 카테고리 조회 -->
+    <select id="getAllCategories" resultMap="CategoryResultMap">
+        SELECT id, name
+        FROM category
+        ORDER BY id
+    </select>
+
+    <!-- 특정 카테고리 조회 -->
+    <select id="getCategoryById" parameterType="Long" resultMap="CategoryResultMap">
+        SELECT id, name
+        FROM category
+        WHERE id = #{categoryId}
+    </select>
+
+</mapper>

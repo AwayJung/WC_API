@@ -17,6 +17,9 @@ public class Item {
     private int viewCount; // 조회수 필드 추가
     private Boolean isLiked;  // 현재 사용자의 찜 상태
     private Long likeCount;  // 해당 아이템의 전체 찜 횟수
+    private int categoryId;
+    private String categoryName;
+    private Boolean priceFlexible;
 
     // 추가 필드 - JOIN 결과를 받기 위한 필드
     private String sellerEmail;

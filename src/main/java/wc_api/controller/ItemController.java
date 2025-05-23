@@ -135,6 +135,13 @@ public class ItemController {
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
     }
 
+    // 판매자(sellerId)별 아이템 목록 조회
+    @GetMapping("/seller/{sellerId}")
+    public ResponseEntity<ApiResp> getSellerItem(@PathVariable Long sellerId) {
+        List<Item> items = itemService.getItemsBySellerId(sellerId);
+        return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus()).body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
+    }
+
     // 아이템 수정 (다중 이미지 처리)
     @PutMapping(
             value = "/{itemId}",
@@ -161,6 +168,14 @@ public class ItemController {
                     .status(ApiRespPolicy.ERR_SYSTEM.getHttpStatus())
                     .body(ApiResp.of(ApiRespPolicy.ERR_SYSTEM, e.getMessage()));
         }
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<ApiResp> getItemsByCategory(@PathVariable Long categoryId) {
+        List<Item> items = itemService.getItemsByCategory(categoryId);
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
     }
 
     // 아이템 삭제

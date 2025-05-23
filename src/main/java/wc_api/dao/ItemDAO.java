@@ -24,4 +24,10 @@ public interface ItemDAO {
 
     // 조회수 증가 메소드 추가
     void updateViewCount(Long itemId);
+
+    // 판매자별 아이템 목록 조회
+    List<Item> selectItemsBySellerId(Long sellerId);
+
+    // 카테고리별 아이템 목록 조회
+    List<Item> selectItemsByCategory(Long categoryId);
 }

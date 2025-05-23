@@ -6,6 +6,7 @@
     <insert id="insertItem" parameterType="Item" useGeneratedKeys="true" keyProperty="itemId">
         INSERT INTO item (
             seller_id,
+            category_id,
             description,
             price,
             image_url,
@@ -15,6 +16,7 @@
         )
         VALUES (
                    #{sellerId},
+                   #{categoryId},
                    #{description},
                    #{price},
                    #{imageUrl},
@@ -29,6 +31,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.category_id,
             i.description,
             i.price,
             i.image_url,
@@ -37,10 +40,35 @@
             i.additional_images,
             i.view_count,
             u.login_email as seller_email,
-            u.name as seller_name
+            u.name as seller_name,
+            c.name as category_name
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
+                 LEFT JOIN category c ON i.category_id = c.id
         WHERE i.item_id = #{itemId}
+    </select>
+
+    <!-- 판매자 ID별 아이템 목록 조회 -->
+    <select id="selectItemsBySellerId" parameterType="Long" resultType="Item">
+        SELECT
+            i.item_id,
+            i.seller_id,
+            i.category_id,
+            i.description,
+            i.price,
+            i.image_url,
+            i.created_at,
+            i.title,
+            i.additional_images,
+            i.view_count,
+            u.login_email as seller_email,
+            u.name as seller_name,
+            c.name as category_name
+        FROM item i
+                 LEFT JOIN user u ON i.seller_id = u.id
+                 LEFT JOIN category c ON i.category_id = c.id
+        WHERE i.seller_id = #{sellerId}
+        ORDER BY i.item_id DESC
     </select>
 
     <!-- 조회수 증가 -->
@@ -55,6 +83,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.category_id,
             i.description,
             i.price,
             i.image_url,
@@ -63,9 +92,11 @@
             i.additional_images,
             i.view_count,
             u.login_email as seller_email,
-            u.name as seller_name
+            u.name as seller_name,
+            c.name as category_name
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
+                 LEFT JOIN category c ON i.category_id = c.id
         ORDER BY i.item_id DESC
     </select>
 
@@ -73,6 +104,7 @@
     <update id="updateItem" parameterType="Item">
         UPDATE item
         SET
+            category_id = #{categoryId},
             description = #{description},
             price = #{price},
             image_url = #{imageUrl},
@@ -86,5 +118,28 @@
         DELETE FROM item
         WHERE item_id = #{itemId}
     </delete>
+
+    <!-- 카테고리별 아이템 목록 조회 -->
+    <select id="selectItemsByCategory" parameterType="Long" resultType="Item">
+        SELECT
+            i.item_id,
+            i.seller_id,
+            i.category_id,
+            i.description,
+            i.price,
+            i.image_url,
+            i.created_at,
+            i.title,
+            i.additional_images,
+            i.view_count,
+            u.login_email as seller_email,
+            u.name as seller_name,
+            c.name as category_name
+        FROM item i
+                 LEFT JOIN user u ON i.seller_id = u.id
+                 LEFT JOIN category c ON i.category_id = c.id
+        WHERE i.category_id = #{categoryId}
+        ORDER BY i.item_id DESC
+    </select>
 
 </mapper>

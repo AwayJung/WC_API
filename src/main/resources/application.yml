@@ -53,7 +53,7 @@ jwt:
 app:
   config:
     file:
-      path: /Users/wonjung/Workspace/Intellij/Practice/Be/Upload/
+      path: ./uploads/items/
 
 logging:
   config: classpath:log4j2.xml
@@ -84,7 +84,7 @@ jwt:
 app:
   config:
     file:
-      path: /Users/wonjung/Workspace/Intellij/Practice/Be/Upload/
+      path: ./uploads/items/
 
 logging:
   config: classpath:log4j2.xml
