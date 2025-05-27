@@ -82,6 +82,7 @@ public class UserService {
             userDAO.updateRefreshToken(userFromDB.getLoginEmail(), userFromDB.getRefreshToken());
 
             UserResp userResp = modelMapper.map(userFromDB, UserResp.class);
+            userResp.setUserId(userFromDB.getId());
             userResp.setAccessToken(accessToken);
             userResp.setRefreshToken(refreshToken);
 

@@ -11,6 +11,8 @@ import lombok.Data;
 @Data
 public class UserResp {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private int userId;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String loginEmail;
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private String name;
