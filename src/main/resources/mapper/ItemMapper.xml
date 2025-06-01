@@ -142,4 +142,25 @@
         ORDER BY i.item_id DESC
     </select>
 
+    <!-- 조회수 높은 순으로 아이템 목록 조회 -->
+    <select id="selectItemsOrderByViewCount" resultType="Item">
+        SELECT
+            i.item_id,
+            i.seller_id,
+            i.category_id,
+            i.description,
+            i.price,
+            i.image_url,
+            i.created_at,
+            i.title,
+            i.additional_images,
+            i.view_count,
+            u.login_email as seller_email,
+            u.name as seller_name,
+            c.name as category_name
+        FROM item i
+                 LEFT JOIN user u ON i.seller_id = u.id
+                 LEFT JOIN category c ON i.category_id = c.id
+        ORDER BY i.view_count DESC
+    </select>
 </mapper>

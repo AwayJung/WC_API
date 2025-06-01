@@ -32,7 +32,7 @@ public class ItemController {
         boolean isLiked = itemLikeService.toggleItemLike(userId, itemId);
         return ResponseEntity
                 .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS, isLiked));
+                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, isLiked));
     }
 
     // 내 찜 목록 조회
@@ -140,6 +140,15 @@ public class ItemController {
     public ResponseEntity<ApiResp> getSellerItem(@PathVariable Long sellerId) {
         List<Item> items = itemService.getItemsBySellerId(sellerId);
         return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus()).body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
+    }
+
+    // 조회수 높은 순으로 아이템 목록 조회
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResp> getPopularItems() {
+        List<Item> items = itemService.getItemsOrderByViewCount();
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, items));
     }
 
     // 아이템 수정 (다중 이미지 처리)

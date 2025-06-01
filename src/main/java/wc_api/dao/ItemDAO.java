@@ -30,4 +30,7 @@ public interface ItemDAO {
 
     // 카테고리별 아이템 목록 조회
     List<Item> selectItemsByCategory(Long categoryId);
+
+    //조회순별 아이템 목록 조회
+    List<Item> selectItemsOrderByViewCount();
 }

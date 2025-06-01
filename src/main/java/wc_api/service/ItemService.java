@@ -430,6 +430,34 @@ public class ItemService {
             }
         }
 
+
+
         return items;
     }
+    // 조회수 높은 순으로 아이템 목록 조회
+    @Transactional
+    public List<Item> getItemsOrderByViewCount() {
+        List<Item> items = itemDAO.selectItemsOrderByViewCount();
+
+        // 각 아이템의 이미지 리스트 설정 (기존 getItemList와 동일한 로직)
+        for (Item item : items) {
+            if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
+                try {
+                    List<String> imageUrls = objectMapper.readValue(
+                            item.getAdditionalImages(),
+                            objectMapper.getTypeFactory().constructCollectionType(List.class, String.class)
+                    );
+                    item.setImageUrlList(imageUrls);
+                } catch (Exception e) {
+                    System.err.println("Error parsing additional images: " + e.getMessage());
+                    item.setImageUrlList(new ArrayList<>());
+                }
+            } else {
+                item.setImageUrlList(new ArrayList<>());
+            }
+        }
+
+        return items;
+    }
+
 }
