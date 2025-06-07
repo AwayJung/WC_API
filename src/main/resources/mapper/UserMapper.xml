@@ -10,7 +10,7 @@
     </insert>
 
     <select id="getUserByEmail" parameterType="string" resultType="wc_api.model.db.user.User">
-        SELECT id , name , login_email AS "loginEmail", password FROM user WHERE login_email = #{loginEmail}
+        SELECT id , name , login_email AS "loginEmail", password , reg_dt FROM user WHERE login_email = #{loginEmail}
     </select>
 
     <update id="updateRefreshToken" >
