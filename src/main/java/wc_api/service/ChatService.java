@@ -73,8 +73,8 @@ public class ChatService {
 
                 // 이 시점에서 해당 messageId로 저장된 chat_room_user 레코드 개수 확인
 //                 chatDAO에 countByMessageId 메서드가 없다면 추가해야 합니다
-                 int beforeCount = chatDAO.countByMessageId(messageId);
-                 System.out.println("저장 전 chat_room_user 레코드 개수: " + beforeCount);
+                int beforeCount = chatDAO.countByMessageId(messageId);
+                System.out.println("저장 전 chat_room_user 레코드 개수: " + beforeCount);
 
                 if (messageId > 0) {
                     // 기존 user_type 조회
@@ -97,9 +97,9 @@ public class ChatService {
                     // insertChatRoomUser 호출 직후
                     System.out.println("insertChatRoomUser 호출 완료");
 
-                     int afterCount = chatDAO.countByMessageId(messageId);
-                     System.out.println("저장 후 chat_room_user 레코드 개수: " + afterCount);
-                     System.out.println("증가된 레코드 수: " + (afterCount - beforeCount));
+                    int afterCount = chatDAO.countByMessageId(messageId);
+                    System.out.println("저장 후 chat_room_user 레코드 개수: " + afterCount);
+                    System.out.println("증가된 레코드 수: " + (afterCount - beforeCount));
                 }
             }
 
@@ -110,6 +110,7 @@ public class ChatService {
             throw e;
         }
     }
+
     @Transactional
     public void markMessageAsRead(String roomId, int userId) {
         chatDAO.updateMessagesReadStatus(roomId, userId);
@@ -179,6 +180,32 @@ public class ChatService {
             System.out.println("채팅방 생성 중 에러 발생: " + e.getMessage());
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    /**
+     * 채팅방 삭제
+     * @param roomId 삭제할 채팅방 ID
+     * @throws IllegalArgumentException 채팅방이 존재하지 않을 때
+     */
+    @Transactional
+    public void deleteChatRoom(String roomId) {
+        try {
+            // 채팅방 존재 여부 확인
+            ChatRoom existingRoom = chatDAO.findRoomById(roomId);
+            if (existingRoom == null) {
+                throw new IllegalArgumentException("존재하지 않는 채팅방입니다.");
+            }
+
+            // 관련 데이터 삭제 (외래키 제약조건 순서대로)
+            chatDAO.deleteChatRoomUsersByRoomId(roomId);
+            chatDAO.deleteMessagesByRoomId(roomId);
+            chatDAO.deleteChatRoom(roomId);
+
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("채팅방 삭제 중 오류가 발생했습니다.", e);
         }
     }
 }

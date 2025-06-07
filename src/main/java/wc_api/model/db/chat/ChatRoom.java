@@ -11,4 +11,10 @@ public class ChatRoom {
     private LocalDateTime createdAt;
     private String description;
     private int price;
+
+    private String lastMessage;
+    private LocalDateTime lastMessageTime;
+
+    private String name;              // 채팅방 이름 (상대방 이름 + 역할)
+    private String itemTitle;         // 상품 제목
 }

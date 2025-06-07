@@ -12,4 +12,5 @@ public class ChatRoomResponse {
     private int sellerName;     // item 테이블 조인
     private String lastMessage; // message 테이블 조인
     private LocalDateTime lastMessageTime;
+
 }

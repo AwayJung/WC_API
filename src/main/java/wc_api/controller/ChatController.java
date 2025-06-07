@@ -72,4 +72,37 @@ public class ChatController {
                 .status(ApiRespPolicy.SUCCESS.getHttpStatus())
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, response));
     }
+
+    /**
+     * 채팅방 삭제
+     * 특정 채팅방을 삭제하고 관련된 메시지도 함께 삭제
+     * @param roomId 삭제할 채팅방 ID
+     * @return 삭제 결과
+     */
+    @DeleteMapping("/rooms/{roomId}")
+    public ResponseEntity<ApiResp> deleteChatRoom(@PathVariable String roomId) {
+        try {
+            chatService.deleteChatRoom(roomId);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("roomId", roomId);
+
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, response));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_CHATROOM_NOT_FOUND.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_CHATROOM_NOT_FOUND));
+        } catch (SecurityException e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_CHATROOM_DELETE_FORBIDDEN.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_CHATROOM_DELETE_FORBIDDEN));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_CHATROOM_DELETE_FAILED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_CHATROOM_DELETE_FAILED));
+        }
+    }
 }

@@ -35,7 +35,6 @@ public interface ChatDAO {
      * @param buyerId 구매자 ID
      * @return 존재하는 채팅방 정보
      */
-    // ChatDAO.java
     ChatRoom findRoomByItemAndUsers(@Param("itemId") Integer itemId, @Param("userId") Integer userId);
 
     /**
@@ -80,6 +79,28 @@ public interface ChatDAO {
      */
     ChatRoom findRoomById(String roomId);
 
-    // ChatDAO 인터페이스에 추가
+    /**
+     * 메시지 ID로 레코드 개수 조회
+     */
     int countByMessageId(int messageId);
+
+    // === 채팅방 삭제 관련 메서드 ===
+
+    /**
+     * 채팅방의 모든 사용자 관계 삭제
+     * @param roomId 채팅방 ID
+     */
+    void deleteChatRoomUsersByRoomId(String roomId);
+
+    /**
+     * 채팅방의 모든 메시지 삭제
+     * @param roomId 채팅방 ID
+     */
+    void deleteMessagesByRoomId(String roomId);
+
+    /**
+     * 채팅방 삭제
+     * @param roomId 채팅방 ID
+     */
+    void deleteChatRoom(String roomId);
 }
