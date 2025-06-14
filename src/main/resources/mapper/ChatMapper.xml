@@ -84,11 +84,12 @@
     </select>
 
     <insert id="insertMessage" parameterType="wc_api.model.db.chat.ChatMessage" useGeneratedKeys="true" keyProperty="messageId">
-        INSERT INTO chat_message (content, sent_time, is_read)
+        INSERT INTO chat_message (content, sent_time, is_read, sender_id)
         VALUES (
                    #{content, jdbcType=VARCHAR},
                    #{sentTime, jdbcType=TIMESTAMP},
-                   false
+                   false,
+                #{senderId}
                )
     </insert>
 
