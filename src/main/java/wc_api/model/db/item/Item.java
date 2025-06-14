@@ -20,6 +20,7 @@ public class Item {
     private int categoryId;
     private String categoryName;
     private Boolean priceFlexible;
+    private String status; // 상품 상태(판매중, 판매완료)
 
     // 추가 필드 - JOIN 결과를 받기 위한 필드
     private String sellerEmail;

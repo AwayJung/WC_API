@@ -14,6 +14,7 @@ import wc_api.service.ItemService;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/items")
@@ -194,5 +195,26 @@ public class ItemController {
         return ResponseEntity
                 .status(ApiRespPolicy.SUCCESS.getHttpStatus())
                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, null));
+    }
+
+    @PutMapping("/{itemId}/status")
+    public ResponseEntity<ApiResp> updateItemStatus(
+            @PathVariable Long itemId,
+            @RequestBody Map<String, String> statusRequest,
+            @RequestHeader(value = "userId", defaultValue = "3") Long userId
+    ) {
+        try {
+            String status = statusRequest.get("status");
+            Item updated = itemService.updateItemStatus(itemId, status, userId);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, updated));
+        } catch (Exception e) {
+            System.out.println("상태 변경 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_SYSTEM.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_SYSTEM, e.getMessage()));
+        }
     }
 }

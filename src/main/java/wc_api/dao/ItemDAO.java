@@ -33,4 +33,6 @@ public interface ItemDAO {
 
     //조회순별 아이템 목록 조회
     List<Item> selectItemsOrderByViewCount();
+
+    void updateItemStatus(Long itemId, String status);
 }

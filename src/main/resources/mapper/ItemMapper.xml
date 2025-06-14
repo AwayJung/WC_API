@@ -31,6 +31,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.status,
             i.category_id,
             i.description,
             i.price,
@@ -53,6 +54,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.status,
             i.category_id,
             i.description,
             i.price,
@@ -83,6 +85,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.status,
             i.category_id,
             i.description,
             i.price,
@@ -124,6 +127,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.status,
             i.category_id,
             i.description,
             i.price,
@@ -147,6 +151,7 @@
         SELECT
             i.item_id,
             i.seller_id,
+            i.status,
             i.category_id,
             i.description,
             i.price,
@@ -163,4 +168,11 @@
                  LEFT JOIN category c ON i.category_id = c.id
         ORDER BY i.view_count DESC
     </select>
+
+    <!-- 물품 상태 변경 -->
+    <update id="updateItemStatus">
+        UPDATE item
+        SET status = #{status}
+        WHERE item_id = #{itemId}
+    </update>
 </mapper>

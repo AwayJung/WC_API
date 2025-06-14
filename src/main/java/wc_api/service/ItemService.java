@@ -459,5 +459,29 @@ public class ItemService {
 
         return items;
     }
+    // 아이템 상태 변경
+    @Transactional
+    public Item updateItemStatus(Long itemId, String status, Long userId) {
+        // 아이템 존재 여부 확인
+        Item existingItem = itemDAO.selectItem(itemId);
+        if (existingItem == null) {
+            throw new IllegalArgumentException("Item not found with id: " + itemId);
+        }
 
+        // 권한 체크 - 본인의 아이템만 수정 가능
+        if (!existingItem.getSellerId().equals(userId)) {
+            throw new IllegalArgumentException("You can only update your own items");
+        }
+
+        // 유효한 상태값인지 체크
+        if (!"SELLING".equals(status) && !"SOLD".equals(status)) {
+            throw new IllegalArgumentException("Invalid status. Only SELLING or SOLD are allowed");
+        }
+
+        // 상태 업데이트
+        itemDAO.updateItemStatus(itemId, status);
+
+        // 업데이트된 아이템 반환
+        return getItemWithImageList(itemId);
+    }
 }
