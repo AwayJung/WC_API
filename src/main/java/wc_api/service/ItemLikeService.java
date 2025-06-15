@@ -26,7 +26,7 @@ public class ItemLikeService {
      * @return 토글 후 좋아요 상태 (true: 좋아요 추가됨, false: 좋아요 취소됨)
      */
     @Transactional
-    public boolean toggleItemLike(Long userId, Long itemId) {
+    public boolean toggleItemLike(Integer userId, Long itemId) {
         // 아이템 존재 확인
         Item item = itemDAO.selectItem(itemId);
         if (item == null) {
@@ -56,7 +56,7 @@ public class ItemLikeService {
      * @param userId 사용자 ID
      * @return 좋아요한 아이템 목록
      */
-    public List<Item> getMyLikedItems(Long userId) {
+    public List<Item> getMyLikedItems(Integer userId) {
         // 사용자가 좋아요한 아이템 ID 목록 조회
         List<Long> likedItemIds = itemLikeDAO.selectItemIdsByUserId(userId);
 
@@ -83,7 +83,7 @@ public class ItemLikeService {
      * @param itemId 아이템 ID
      * @return 좋아요 상태
      */
-    public boolean isItemLiked(Long userId, Long itemId) {
+    public boolean isItemLiked(Integer userId, Long itemId) {
         return itemLikeDAO.countItemLike(userId, itemId) > 0;
     }
 
@@ -102,7 +102,7 @@ public class ItemLikeService {
      * @param userId 사용자 ID
      * @return 좋아요 상태가 포함된 아이템 정보
      */
-    public Item getItemDetailWithLikeStatus(Long itemId, Long userId) {
+    public Item getItemDetailWithLikeStatus(Long itemId, Integer userId) {
         // 아이템 정보 조회
         Item item = itemDAO.selectItem(itemId);
         if (item == null) {

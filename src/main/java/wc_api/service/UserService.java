@@ -159,4 +159,32 @@ public class UserService {
             throw e;
         }
     }
+
+    /**
+     * JWT 토큰에서 사용자 ID를 추출
+     *
+     * @param accessToken JWT 액세스 토큰
+     * @return 사용자 ID
+     * @throws CommonApiException 토큰이 유효하지 않거나 사용자를 찾을 수 없을 때
+     */
+    public Integer getUserIdFromToken(String accessToken) throws Exception {
+        try {
+            // 토큰에서 이메일 추출
+            String loginEmail = jwtUtil.extractLoginEmail(accessToken);
+            if (loginEmail == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 이메일로 사용자 정보 조회
+            User user = userDAO.getUserByEmail(loginEmail);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            return user.getId();  // int 타입의 ID 반환
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+        }
+    }
 }

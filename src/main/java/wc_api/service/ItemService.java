@@ -461,7 +461,7 @@ public class ItemService {
     }
     // 아이템 상태 변경
     @Transactional
-    public Item updateItemStatus(Long itemId, String status, Long userId) {
+    public Item updateItemStatus(Long itemId, String status, Integer userId) {
         // 아이템 존재 여부 확인
         Item existingItem = itemDAO.selectItem(itemId);
         if (existingItem == null) {
@@ -469,7 +469,8 @@ public class ItemService {
         }
 
         // 권한 체크 - 본인의 아이템만 수정 가능
-        if (!existingItem.getSellerId().equals(userId)) {
+        if (!existingItem.getSellerId().equals(Long.valueOf(userId))) {
+
             throw new IllegalArgumentException("You can only update your own items");
         }
 

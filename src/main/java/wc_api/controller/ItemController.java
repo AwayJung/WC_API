@@ -1,6 +1,7 @@
 package wc_api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import wc_api.common.model.response.ApiResp;
 import wc_api.model.db.item.Item;
 import wc_api.service.ItemLikeService;
 import wc_api.service.ItemService;
+import wc_api.service.UserService; // JWT 토큰 파싱을 위해 추가
 
 import java.io.IOException;
 import java.util.List;
@@ -24,39 +26,71 @@ public class ItemController {
 
     private final ItemService itemService;
     private final ItemLikeService itemLikeService;
+    private final UserService userService; // JWT 토큰 파싱을 위해 추가
+
+    /**
+     * Authorization 헤더에서 JWT 토큰을 추출하고 사용자 ID를 반환
+     */
+    private Integer extractUserIdFromToken(HttpServletRequest request) throws Exception {
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("유효하지 않은 Authorization 헤더입니다.");
+        }
+        accessToken = accessToken.substring(7);
+        return userService.getUserIdFromToken(accessToken);
+    }
 
     @PostMapping("/{itemId}/like")
     public ResponseEntity<ApiResp> toggleItemLike(
             @PathVariable Long itemId,
-            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
+            HttpServletRequest request
     ) {
-        boolean isLiked = itemLikeService.toggleItemLike(userId, itemId);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                 .body(ApiResp.of(ApiRespPolicy.SUCCESS, isLiked));
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            boolean isLiked = itemLikeService.toggleItemLike(userId, itemId);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, isLiked));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
     }
 
     // 내 찜 목록 조회
     @GetMapping("/my-likes")
-    public ResponseEntity<ApiResp> getMyLikedItems(
-            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
-    ) {
-        List<Item> likedItems = itemLikeService.getMyLikedItems(userId);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS, likedItems));
+    public ResponseEntity<ApiResp> getMyLikedItems(HttpServletRequest request) {
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            List<Item> likedItems = itemLikeService.getMyLikedItems(userId);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, likedItems));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
     }
 
     // 아이템 상세 조회 시 해당 아이템의 찜 상태도 함께 반환
     @GetMapping("/{itemId}/like-status")
     public ResponseEntity<ApiResp> getItemWithLikeStatus(
             @PathVariable Long itemId,
-            @RequestHeader(value = "userId", defaultValue = "3") Long userId  // 인증된 사용자 ID
+            HttpServletRequest request
     ) {
-        Item itemDetail = itemLikeService.getItemDetailWithLikeStatus(itemId, userId);
-        return ResponseEntity
-                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
-                .body(ApiResp.of(ApiRespPolicy.SUCCESS, itemDetail));
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            Item itemDetail = itemLikeService.getItemDetailWithLikeStatus(itemId, userId);
+            return ResponseEntity
+                    .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, itemDetail));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
     }
 
     // 아이템 등록 (다중 이미지 처리)
@@ -201,9 +235,10 @@ public class ItemController {
     public ResponseEntity<ApiResp> updateItemStatus(
             @PathVariable Long itemId,
             @RequestBody Map<String, String> statusRequest,
-            @RequestHeader(value = "userId", defaultValue = "3") Long userId
+            HttpServletRequest request
     ) {
         try {
+            Integer userId = extractUserIdFromToken(request);
             String status = statusRequest.get("status");
             Item updated = itemService.updateItemStatus(itemId, status, userId);
             return ResponseEntity
