@@ -30,6 +30,8 @@ public class ImageController {
     @Value("${app.config.file.path}")
     private String uploadPath;
 
+
+    // 저장된 이미지 파일을 웹에서 볼 수 있도록 하는 역할
     @GetMapping("/{imageName:.+}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) throws IOException {
         System.out.println("============= 이미지 요청 시작 =============");
@@ -38,13 +40,6 @@ public class ImageController {
         // 파일 시스템 확인
         File uploadDir = new File(uploadPath);
         File imageFile = new File(uploadDir, imageName);
-
-        System.out.println("이미지 설정 경로: " + uploadPath);
-        System.out.println("이미지 절대 경로: " + imageFile.getAbsolutePath());
-        System.out.println("업로드 디렉토리 존재 여부: " + uploadDir.exists());
-        System.out.println("업로드 디렉토리 읽기 권한: " + uploadDir.canRead());
-        System.out.println("이미지 파일 존재 여부: " + imageFile.exists());
-        System.out.println("이미지 파일 읽기 권한: " + (imageFile.exists() ? imageFile.canRead() : "파일 없음"));
 
         // 디렉토리 내용 확인
         if (uploadDir.exists() && uploadDir.isDirectory()) {
