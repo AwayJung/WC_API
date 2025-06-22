@@ -50,6 +50,7 @@ public class UserService {
             String encodedPassword = passwordEncoder.encode(userReq.getPassword());
             User user = new User();
             user.setName(userReq.getName());
+            user.setNickname(userReq.getNickname());  // 닉네임 추가
             user.setLoginEmail(userReq.getLoginEmail());
             user.setPassword(encodedPassword);
 
@@ -319,6 +320,7 @@ public class UserService {
             String encodedPassword = passwordEncoder.encode(userReq.getPassword());
             User user = new User();
             user.setName(userReq.getName());
+            user.setNickname(userReq.getNickname());  // 닉네임 추가
             user.setLoginEmail(userReq.getLoginEmail());
             user.setPassword(encodedPassword);
             user.setProfileImage(savedFileName); // 프로필 이미지 파일명 설정
@@ -364,7 +366,8 @@ public class UserService {
 
             // 3. 사용자 기본 정보 업데이트
             user.setName(userReq.getName());
-            // 필요한 다른 필드들도 여기서 업데이트...
+            user.setNickname(userReq.getNickname());  // 닉네임 업데이트 추가
+            user.setIntroduction(userReq.getIntroduction());  // 자기소개 업데이트도 추가
 
             // 4. DB 업데이트 (이 메서드는 UserDAO에 추가해야 함)
             userDAO.updateUserProfile(user);

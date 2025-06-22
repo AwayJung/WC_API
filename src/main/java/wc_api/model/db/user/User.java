@@ -17,4 +17,5 @@ public class User {
     private LocalDateTime updDt;
     private String profileImage;
     private String introduction;
+    private String nickname;
 }

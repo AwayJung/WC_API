@@ -23,4 +23,5 @@ public class UserReq {
     private String name;
 
     private String introduction;
+    private String nickname;
 }

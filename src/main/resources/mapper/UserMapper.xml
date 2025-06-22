@@ -4,15 +4,16 @@
 
     <insert id="createUser" parameterType="wc_api.model.db.user.User">
         INSERT INTO
-            user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name, profile_image, introduction)
+            user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name, nickname, profile_image, introduction)
         VALUES
-            (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name}, #{user.profileImage}, #{user.introduction})
+            (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name}, #{user.nickname}, #{user.profileImage}, #{user.introduction})
     </insert>
 
     <select id="getUserByEmail" parameterType="string" resultType="wc_api.model.db.user.User">
         SELECT
             id,
             name,
+            nickname,
             login_email AS "loginEmail",
             password,
             profile_image AS "profileImage",
@@ -45,6 +46,7 @@
         SELECT
             id,
             name,
+            nickname,
             login_email AS "loginEmail",
             password,
             profile_image AS "profileImage",
@@ -70,6 +72,7 @@
         UPDATE user
         SET
             name = #{user.name},
+            nickname = #{user.nickname},
             profile_image = #{user.profileImage},
             introduction = #{user.introduction},
             upd_dt = CURRENT_TIMESTAMP
@@ -83,5 +86,7 @@
             upd_dt = CURRENT_TIMESTAMP
         WHERE id = #{userId}
     </update>
+
+
 
 </mapper>

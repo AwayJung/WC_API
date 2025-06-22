@@ -26,4 +26,5 @@ public class UserResp {
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")  // JSON 직렬화 형식 지정
     private LocalDateTime regDt;
+    private String nickname;
 }
