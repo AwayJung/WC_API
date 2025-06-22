@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import wc_api.common.constant.ApiRespPolicy;
 import wc_api.common.exception.CommonApiException;
 import wc_api.common.jwt.JwtUtil;
-import wc_api.common.model.response.ApiResp;
 import wc_api.dao.UserDAO;
 import wc_api.model.db.user.User;
 import wc_api.model.request.UserLoginReq;
@@ -29,6 +29,11 @@ public class UserService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    // ItemController에서 사용하던 것과 동일한 ImageService를 재사용
+    @Autowired
+    private ImageService imageService;
+
     /**
      * 회원가입
      *
@@ -90,7 +95,6 @@ public class UserService {
 
             return userResp;
 
-
         }catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -98,12 +102,11 @@ public class UserService {
     }
 
     /**
-     * 로그인
+     * 토큰 갱신
      *
      * @param refreshToken 리프레쉬토큰
      * @throws CommonApiException with {@link ApiRespPolicy#ERR_INVALID_REFRESH_TOKEN} 리프레쉬토큰이 유효하지 않을 때
      */
-
     @Transactional
     public UserResp refresh(String refreshToken) throws Exception {
         try {
@@ -185,6 +188,190 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
             throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+        }
+    }
+
+    // =============== 🔥 새로 추가된 프로필 이미지 관련 메서드들 ===============
+
+    /**
+     * 프로필 이미지 업데이트
+     * - 기존 이미지가 있다면 삭제 후 새 이미지 저장
+     * - 새 이미지 파일명을 DB에 업데이트
+     *
+     * @param userId 사용자 ID (JWT 토큰에서 추출됨)
+     * @param profileImage 업로드할 프로필 이미지 파일
+     * @return 업데이트된 사용자 정보
+     * @throws Exception 파일 저장 실패, 사용자 없음 등의 경우
+     */
+    @Transactional
+    public User updateProfileImage(Integer userId, MultipartFile profileImage) throws Exception {
+        try {
+            // 1. 사용자 존재 여부 확인
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 기존 프로필 이미지가 있다면 하드디스크에서 삭제
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                // ImageService의 deleteImage 메서드를 사용해 파일 삭제
+                imageService.deleteImage(user.getProfileImage());
+            }
+
+            // 3. 새로운 이미지가 있다면 저장
+            String savedFileName = null;
+            if (profileImage != null && !profileImage.isEmpty()) {
+                // ImageService의 storeImage 메서드를 사용해 파일 저장
+                // ItemController에서 사용하던 것과 동일한 방식
+                savedFileName = imageService.storeImage(profileImage);
+            }
+
+            // 4. DB에 새로운 파일명 업데이트
+            user.setProfileImage(savedFileName);
+            userDAO.updateUserProfileImage(userId, savedFileName);
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 사용자 프로필 정보 조회
+     * - 프로필 이미지 파일명 포함한 전체 사용자 정보 반환
+     *
+     * @param userId 사용자 ID
+     * @return 사용자 프로필 정보 (프로필 이미지 파일명 포함)
+     * @throws Exception 사용자가 존재하지 않을 때
+     */
+    public User getUserProfile(Integer userId) throws Exception {
+        try {
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 프로필 이미지 삭제
+     * - 하드디스크에서 이미지 파일 삭제
+     * - DB에서 프로필 이미지 파일명을 null로 설정
+     *
+     * @param userId 사용자 ID
+     * @return 업데이트된 사용자 정보
+     * @throws Exception 파일 삭제 실패, 사용자 없음 등의 경우
+     */
+    @Transactional
+    public User deleteProfileImage(Integer userId) throws Exception {
+        try {
+            // 1. 사용자 존재 여부 확인
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 기존 이미지 파일이 있다면 하드디스크에서 삭제
+            if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                imageService.deleteImage(user.getProfileImage());
+            }
+
+            // 3. DB에서 프로필 이미지 파일명을 null로 업데이트
+            user.setProfileImage(null);
+            userDAO.updateUserProfileImage(userId, null);
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 프로필 이미지와 함께 회원가입
+     * - 회원가입과 동시에 프로필 이미지 업로드
+     *
+     * @param userReq 유저정보 객체
+     * @param profileImage 프로필 이미지 파일 (선택사항)
+     * @throws Exception 회원가입 실패, 이미지 저장 실패 등의 경우
+     */
+    @Transactional
+    public void createUserWithProfileImage(UserReq userReq, MultipartFile profileImage) throws Exception {
+        try {
+            // 1. 중복 사용자 체크 (기존 로직과 동일)
+            User existUser = userDAO.getUserByEmail(userReq.getLoginEmail());
+            if (existUser != null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_DUPLICATED_USER);
+            }
+
+            // 2. 프로필 이미지 저장 (있는 경우만)
+            String savedFileName = null;
+            if (profileImage != null && !profileImage.isEmpty()) {
+                savedFileName = imageService.storeImage(profileImage);
+            }
+
+            // 3. 사용자 정보 생성 (프로필 이미지 파일명 포함)
+            String encodedPassword = passwordEncoder.encode(userReq.getPassword());
+            User user = new User();
+            user.setName(userReq.getName());
+            user.setLoginEmail(userReq.getLoginEmail());
+            user.setPassword(encodedPassword);
+            user.setProfileImage(savedFileName); // 프로필 이미지 파일명 설정
+
+            // 4. DB에 저장
+            userDAO.createUser(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 프로필 정보 수정 (프로필 이미지 포함)
+     * - 사용자 기본 정보와 프로필 이미지를 함께 수정
+     *
+     * @param userId 사용자 ID
+     * @param userReq 수정할 사용자 정보
+     * @param profileImage 새로운 프로필 이미지 (선택사항)
+     * @return 업데이트된 사용자 정보
+     * @throws Exception 수정 실패, 이미지 저장 실패 등의 경우
+     */
+    @Transactional
+    public User updateUserProfile(Integer userId, UserReq userReq, MultipartFile profileImage) throws Exception {
+        try {
+            // 1. 사용자 존재 여부 확인
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 프로필 이미지 처리 (새로운 이미지가 있는 경우만)
+            if (profileImage != null && !profileImage.isEmpty()) {
+                // 기존 이미지 삭제
+                if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
+                    imageService.deleteImage(user.getProfileImage());
+                }
+                // 새 이미지 저장
+                String savedFileName = imageService.storeImage(profileImage);
+                user.setProfileImage(savedFileName);
+            }
+
+            // 3. 사용자 기본 정보 업데이트
+            user.setName(userReq.getName());
+            // 필요한 다른 필드들도 여기서 업데이트...
+
+            // 4. DB 업데이트 (이 메서드는 UserDAO에 추가해야 함)
+            userDAO.updateUserProfile(user);
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
         }
     }
 }

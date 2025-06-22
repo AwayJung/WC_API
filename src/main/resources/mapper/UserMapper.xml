@@ -4,25 +4,76 @@
 
     <insert id="createUser" parameterType="wc_api.model.db.user.User">
         INSERT INTO
-            user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name)
+            user (id, login_email, password, refresh_token, refresh_token_issue_dt, reg_dt, upd_dt, name, profile_image, introduction)
         VALUES
-            (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name})
+            (#{user.id}, #{user.loginEmail}, #{user.password}, 'temporary_token', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, #{user.name}, #{user.profileImage}, #{user.introduction})
     </insert>
 
     <select id="getUserByEmail" parameterType="string" resultType="wc_api.model.db.user.User">
-        SELECT id , name , login_email AS "loginEmail", password , reg_dt FROM user WHERE login_email = #{loginEmail}
+        SELECT
+            id,
+            name,
+            login_email AS "loginEmail",
+            password,
+            profile_image AS "profileImage",
+            introduction,
+            reg_dt AS "regDt"
+        FROM user
+        WHERE login_email = #{loginEmail}
     </select>
 
-    <update id="updateRefreshToken" >
-        UPDATE user SET refresh_token = #{refreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP WHERE login_email = #{loginEmail}
+    <update id="updateRefreshToken">
+        UPDATE user
+        SET refresh_token = #{refreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP
+        WHERE login_email = #{loginEmail}
     </update>
 
-    <update id="storeRefreshToken" >
-        UPDATE user SET refresh_token = #{newRefreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP  WHERE login_email= #{loginEmail}
+    <update id="storeRefreshToken">
+        UPDATE user
+        SET refresh_token = #{newRefreshToken}, refresh_token_issue_dt = CURRENT_TIMESTAMP
+        WHERE login_email = #{loginEmail}
     </update>
 
     <select id="getStoredRefreshToken">
-        SELECT refresh_token FROM user WHERE login_email = #{loginEmail}
+        SELECT refresh_token
+        FROM user
+        WHERE login_email = #{loginEmail}
     </select>
+
+    <!-- 사용자 ID로 프로필 정보 조회 (프로필 이미지, 자기소개 포함) -->
+    <select id="getUserById" parameterType="int" resultType="wc_api.model.db.user.User">
+        SELECT
+            id,
+            name,
+            login_email AS "loginEmail",
+            password,
+            profile_image AS "profileImage",
+            introduction,
+            refresh_token AS "refreshToken",
+            reg_dt AS "regDt",
+            upd_dt AS "updDt"
+        FROM user
+        WHERE id = #{userId}
+    </select>
+
+    <!-- 프로필 이미지만 업데이트 -->
+    <update id="updateUserProfileImage">
+        UPDATE user
+        SET
+            profile_image = #{profileImage},
+            upd_dt = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
+
+    <!-- 사용자 프로필 전체 정보 업데이트 -->
+    <update id="updateUserProfile">
+        UPDATE user
+        SET
+            name = #{user.name},
+            profile_image = #{user.profileImage},
+            introduction = #{user.introduction},
+            upd_dt = CURRENT_TIMESTAMP
+        WHERE id = #{user.id}
+    </update>
 
 </mapper>

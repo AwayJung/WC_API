@@ -15,4 +15,6 @@ public class User {
     private LocalDateTime refreshTokenIssueDt;
     private LocalDateTime regDt;
     private LocalDateTime updDt;
+    private String profileImage;
+    private String introduction;
 }

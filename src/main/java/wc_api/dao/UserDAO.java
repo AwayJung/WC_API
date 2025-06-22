@@ -17,4 +17,33 @@ public interface UserDAO {
 
     void storeRefreshToken(@Param("loginEmail") String loginEmail, @Param("newRefreshToken") String newRefreshToken);
 
+    /**
+     * 사용자 ID로 사용자 정보 조회
+     * - 프로필 조회, 이미지 업데이트 시 사용
+     *
+     * @param userId 사용자 ID
+     * @return 사용자 정보 (프로필 이미지 파일명 포함)
+     */
+    User getUserById(@Param("userId") Integer userId);
+
+    /**
+     * 프로필 이미지 파일명만 업데이트
+     * - 이미지 업로드/수정/삭제 시 사용
+     *
+     * @param userId 사용자 ID
+     * @param profileImage 프로필 이미지 파일명 (삭제 시 null)
+     * @return 업데이트된 행 수
+     */
+    int updateUserProfileImage(@Param("userId") Integer userId,
+                               @Param("profileImage") String profileImage);
+
+    /**
+     * 사용자 프로필 전체 정보 업데이트
+     * - 이름, 프로필 이미지 등 전체 프로필 수정 시 사용
+     *
+     * @param user 업데이트할 사용자 정보
+     * @return 업데이트된 행 수
+     */
+    int updateUserProfile(@Param("user") User user);
+
 }
