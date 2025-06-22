@@ -220,9 +220,9 @@ public class UserController {
     }
 
     /**
-     * 프로필 정보 수정 (이미지 + 기본 정보)
+     * 프로필 정보 수정 (이미지 + 기본 정보 + 자기소개)
      *
-     * @param userStr 수정할 사용자 정보 JSON 문자열
+     * @param userStr 수정할 사용자 정보 JSON 문자열 (자기소개 포함)
      * @param profileImage 새로운 프로필 이미지 (선택사항)
      * @param request HTTP 요청 객체 (JWT 토큰에서 사용자 ID 추출)
      * @return 업데이트된 사용자 정보
@@ -249,6 +249,68 @@ public class UserController {
             e.printStackTrace();
             return ResponseEntity.status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
                     .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
+    }
+
+    // =============== 🔥 새로 추가된 자기소개 관련 엔드포인트들 ===============
+
+    /**
+     * 자기소개만 수정
+     *
+     * @param introductionRequest 자기소개 정보가 담긴 JSON 객체
+     * @param request HTTP 요청 객체 (JWT 토큰에서 사용자 ID 추출)
+     * @return 업데이트된 사용자 정보
+     */
+    @PutMapping(value = "/introduction", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResp> updateIntroduction(
+            @RequestBody IntroductionRequest introductionRequest,
+            HttpServletRequest request) {
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            User updatedUser = userService.updateIntroduction(userId, introductionRequest.getIntroduction());
+            return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, updatedUser));
+        } catch (Exception e) {
+            System.out.println("자기소개 수정 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
+    }
+
+    /**
+     * 자기소개 삭제 (null로 설정)
+     *
+     * @param request HTTP 요청 객체 (JWT 토큰에서 사용자 ID 추출)
+     * @return 업데이트된 사용자 정보
+     */
+    @DeleteMapping("/introduction")
+    public ResponseEntity<ApiResp> deleteIntroduction(HttpServletRequest request) {
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            User updatedUser = userService.updateIntroduction(userId, null);
+            return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, updatedUser));
+        } catch (Exception e) {
+            System.out.println("자기소개 삭제 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
+    }
+
+    /**
+     * 자기소개 요청을 위한 내부 클래스
+     */
+    public static class IntroductionRequest {
+        private String introduction;
+
+        public String getIntroduction() {
+            return introduction;
+        }
+
+        public void setIntroduction(String introduction) {
+            this.introduction = introduction;
         }
     }
 }

@@ -76,4 +76,12 @@
         WHERE id = #{user.id}
     </update>
 
+    <update id="updateUserIntroduction">
+        UPDATE user
+        SET
+            introduction = #{introduction},
+            upd_dt = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
+
 </mapper>

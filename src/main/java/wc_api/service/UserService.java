@@ -322,6 +322,7 @@ public class UserService {
             user.setLoginEmail(userReq.getLoginEmail());
             user.setPassword(encodedPassword);
             user.setProfileImage(savedFileName); // 프로필 이미지 파일명 설정
+            user.setIntroduction(userReq.getIntroduction());
 
             // 4. DB에 저장
             userDAO.createUser(user);
@@ -367,6 +368,35 @@ public class UserService {
 
             // 4. DB 업데이트 (이 메서드는 UserDAO에 추가해야 함)
             userDAO.updateUserProfile(user);
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+
+    }
+    /**
+     * 자기소개만 업데이트
+     * - 자기소개만 따로 수정하고 싶을 때 사용
+     *
+     * @param userId 사용자 ID
+     * @param introduction 새로운 자기소개 (null 가능)
+     * @return 업데이트된 사용자 정보
+     * @throws Exception 사용자 없음 등의 경우
+     */
+    @Transactional
+    public User updateIntroduction(Integer userId, String introduction) throws Exception {
+        try {
+            // 1. 사용자 존재 여부 확인
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 자기소개 업데이트
+            user.setIntroduction(introduction);
+            userDAO.updateUserIntroduction(userId, introduction);
 
             return user;
         } catch (Exception e) {
