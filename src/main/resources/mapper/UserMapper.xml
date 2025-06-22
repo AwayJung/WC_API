@@ -87,6 +87,13 @@
         WHERE id = #{userId}
     </update>
 
-
+    <!-- 사용자 비밀번호 업데이트 -->
+    <update id="updateUserPassword">
+        UPDATE user
+        SET
+            password = #{password},
+            upd_dt = CURRENT_TIMESTAMP
+        WHERE id = #{userId}
+    </update>
 
 </mapper>

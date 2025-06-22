@@ -56,4 +56,15 @@ public interface UserDAO {
      */
     int updateUserIntroduction(@Param("userId") Integer userId,
                                @Param("introduction") String introduction);
+
+    /**
+     * 사용자 비밀번호 업데이트
+     * - 임시 비밀번호 설정, 비밀번호 변경 시 사용
+     *
+     * @param userId 사용자 ID
+     * @param password 암호화된 비밀번호
+     * @return 업데이트된 행 수
+     */
+    int updateUserPassword(@Param("userId") Integer userId,
+                           @Param("password") String password);
 }

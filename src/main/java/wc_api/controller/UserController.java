@@ -252,22 +252,22 @@ public class UserController {
         }
     }
 
-    // =============== 🔥 새로 추가된 자기소개 관련 엔드포인트들 ===============
+    // =============== 새로 추가된 자기소개 관련 엔드포인트들 ===============
 
     /**
      * 자기소개만 수정
      *
-     * @param introductionRequest 자기소개 정보가 담긴 JSON 객체
+     * @param userReq 자기소개 정보가 담긴 JSON 객체
      * @param request HTTP 요청 객체 (JWT 토큰에서 사용자 ID 추출)
      * @return 업데이트된 사용자 정보
      */
     @PutMapping(value = "/introduction", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResp> updateIntroduction(
-            @RequestBody IntroductionRequest introductionRequest,
+            @RequestBody UserReq userReq,
             HttpServletRequest request) {
         try {
             Integer userId = extractUserIdFromToken(request);
-            User updatedUser = userService.updateIntroduction(userId, introductionRequest.getIntroduction());
+            User updatedUser = userService.updateIntroduction(userId, userReq.getIntroduction());
             return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
                     .body(ApiResp.of(ApiRespPolicy.SUCCESS, updatedUser));
         } catch (Exception e) {
@@ -299,18 +299,51 @@ public class UserController {
         }
     }
 
+    // =============== 비밀번호 찾기 및 수정 ===============
+
+
     /**
-     * 자기소개 요청을 위한 내부 클래스
+     * 비밀번호 찾기 - 임시 비밀번호 발송
+     *
+     * @param userReq 이메일 정보가 담긴 요청 객체
+     * @return 임시 비밀번호 발송 성공 여부
      */
-    public static class IntroductionRequest {
-        private String introduction;
-
-        public String getIntroduction() {
-            return introduction;
-        }
-
-        public void setIntroduction(String introduction) {
-            this.introduction = introduction;
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResp> forgotPassword(@RequestBody UserReq userReq) {
+        try {
+            userService.sendTemporaryPassword(userReq.getLoginEmail());
+            return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, "임시 비밀번호가 이메일로 발송되었습니다."));
+        } catch (Exception e) {
+            System.out.println("비밀번호 찾기 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(ApiRespPolicy.ERR_SYSTEM.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_SYSTEM, "이메일 발송에 실패했습니다."));
         }
     }
+
+    /**
+     * 비밀번호 변경 (로그인된 사용자)
+     *
+     * @param userReq 새 비밀번호가 담긴 요청 객체
+     * @param request HTTP 요청 객체 (JWT 토큰에서 사용자 ID 추출)
+     * @return 비밀번호 변경 성공 여부
+     */
+    @PutMapping("/change-password")
+    public ResponseEntity<ApiResp> changePassword(
+            @RequestBody UserReq userReq,
+            HttpServletRequest request) {
+        try {
+            Integer userId = extractUserIdFromToken(request);
+            userService.changePassword(userId, userReq.getPassword());
+            return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, "비밀번호가 성공적으로 변경되었습니다."));
+        } catch (Exception e) {
+            System.out.println("비밀번호 변경 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
+        }
+    }
+
 }

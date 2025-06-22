@@ -3,6 +3,8 @@ package wc_api.service;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,8 @@ import wc_api.model.db.user.User;
 import wc_api.model.request.UserLoginReq;
 import wc_api.model.request.UserReq;
 import wc_api.model.response.UserResp;
+
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,10 @@ public class UserService {
     // ItemController에서 사용하던 것과 동일한 ImageService를 재사용
     @Autowired
     private ImageService imageService;
+
+    // 이메일 발송을 위한 JavaMailSender 추가
+    @Autowired
+    private JavaMailSender mailSender;
 
     /**
      * 회원가입
@@ -405,6 +413,124 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
+        }
+    }
+
+    // =============== 비밀번호 찾기 및 수정 ===============
+
+    /**
+     * 임시 비밀번호 생성 및 이메일 발송
+     *
+     * @param email 사용자 이메일
+     * @throws Exception 사용자를 찾을 수 없거나 이메일 발송 실패시
+     */
+    @Transactional
+    public void sendTemporaryPassword(String email) throws Exception {
+        try {
+            // 1. 이메일로 사용자 찾기
+            User user = userDAO.getUserByEmail(email);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 임시 비밀번호 생성 (8자리 랜덤)
+            String tempPassword = generateTemporaryPassword();
+
+            // 3. 임시 비밀번호를 암호화하여 DB에 저장
+            String encodedTempPassword = passwordEncoder.encode(tempPassword);
+            userDAO.updateUserPassword(user.getId(), encodedTempPassword);
+
+            // 4. 임시 비밀번호를 이메일로 발송
+            sendPasswordResetEmail(email, tempPassword, user.getName());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 비밀번호 변경 (로그인된 사용자)
+     *
+     * @param userId 사용자 ID
+     * @param newPassword 새 비밀번호
+     * @throws Exception 변경 실패시
+     */
+    @Transactional
+    public void changePassword(Integer userId, String newPassword) throws Exception {
+        try {
+            // 1. 사용자 정보 조회
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 2. 새 비밀번호 암호화 후 저장
+            String encodedNewPassword = passwordEncoder.encode(newPassword);
+            userDAO.updateUserPassword(userId, encodedNewPassword);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    /**
+     * 8자리 임시 비밀번호 생성
+     *
+     * @return 생성된 임시 비밀번호
+     */
+    private String generateTemporaryPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder tempPassword = new StringBuilder();
+        java.util.Random random = new java.util.Random();
+
+        for (int i = 0; i < 8; i++) {
+            tempPassword.append(chars.charAt(random.nextInt(chars.length())));
+        }
+
+        return tempPassword.toString();
+    }
+
+    /**
+     * 비밀번호 재설정 이메일 발송
+     *
+     * @param email 수신자 이메일
+     * @param tempPassword 임시 비밀번호
+     * @param name 사용자 이름
+     */
+    private void sendPasswordResetEmail(String email, String tempPassword, String name) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom("wjddnjswjd67@naver.com");
+            helper.setTo(email);
+            helper.setSubject("[당근마켓] 임시 비밀번호 발송");
+
+            String htmlContent = String.format(
+                    "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>" +
+                            "<h2 style='color: #ff6f0f;'>🥕 당근마켓 임시 비밀번호</h2>" +
+                            "<p>안녕하세요, <strong>%s</strong>님!</p>" +
+                            "<p>요청하신 임시 비밀번호를 안내드립니다.</p>" +
+                            "<div style='background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;'>" +
+                            "<h3 style='margin: 0; color: #333;'>임시 비밀번호: <span style='color: #ff6f0f; font-size: 24px;'>%s</span></h3>" +
+                            "</div>" +
+                            "<p style='color: #666;'>⚠️ 보안을 위해 로그인 후 반드시 새로운 비밀번호로 변경해주세요.</p>" +
+                            "<p style='color: #999; font-size: 12px;'>본 메일은 자동으로 발송된 메일입니다.</p>" +
+                            "</div>",
+                    name, tempPassword
+            );
+
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+
+            System.out.println("임시 비밀번호 이메일 발송 완료: " + email);
+
+        } catch (Exception e) {
+            System.out.println("이메일 발송 실패: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("이메일 발송에 실패했습니다.", e);
         }
     }
 }
