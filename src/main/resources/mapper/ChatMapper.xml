@@ -43,7 +43,7 @@
             i.title as itemTitle,
             last_msg.content as lastMessage,
             last_msg.sent_time as lastMessageTime,
-            -- 상대방 이름만 표시 (역할 제거)
+            -- 상대방 이름 (기존 유지)
             CASE
                 WHEN cru.user_type = 'S' THEN
                     (SELECT u.name
@@ -57,7 +57,22 @@
                      JOIN user u ON cru2.user_id = u.id
                      WHERE cru2.room_id = cr.room_id AND cru2.user_type = 'S'
                      LIMIT 1)
-        END as name
+        END as name,
+            -- 상대방 닉네임 (새로 추가)
+            CASE
+                WHEN cru.user_type = 'S' THEN
+                    (SELECT u.nickname
+                     FROM chat_room_user cru2
+                              JOIN user u ON cru2.user_id = u.id
+                     WHERE cru2.room_id = cr.room_id AND cru2.user_type = 'B'
+                    LIMIT 1)
+                ELSE
+                    (SELECT u.nickname
+                     FROM chat_room_user cru2
+                     JOIN user u ON cru2.user_id = u.id
+                     WHERE cru2.room_id = cr.room_id AND cru2.user_type = 'S'
+                     LIMIT 1)
+        END as sellerNickname
         FROM chat_room cr
         JOIN chat_room_user cru ON cr.room_id = cru.room_id
         JOIN item i ON cr.item_id = i.item_id
@@ -89,7 +104,7 @@
                    #{content, jdbcType=VARCHAR},
                    #{sentTime, jdbcType=TIMESTAMP},
                    false,
-                #{senderId}
+                   #{senderId}
                )
     </insert>
 

@@ -17,4 +17,5 @@ public class ChatRoom {
 
     private String name;              // 채팅방 이름 (상대방 이름 + 역할)
     private String itemTitle;         // 상품 제목
+    private String sellerNickname;    // 판매자 닉네임
 }
