@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import wc_api.dao.ItemDAO;
+import wc_api.dao.ItemLikeDAO;
 import wc_api.model.db.item.Item;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ public class ItemService {
     private final ItemDAO itemDAO;
     private final ImageService imageService;
     private final ObjectMapper objectMapper;
+    private final ItemLikeDAO itemLikeDAO; // 이 라인 추가
 
     // 다중 이미지로 아이템 생성
     @Transactional
@@ -124,6 +126,10 @@ public class ItemService {
             } else {
                 item.setImageUrlList(new ArrayList<>());
             }
+
+            // 각 아이템의 좋아요 수 설정
+            Long likeCount = itemLikeDAO.countItemLikeByItemId(item.getItemId());
+            item.setLikeCount(likeCount);
         }
 
         return items;
@@ -386,10 +392,16 @@ public class ItemService {
 
     @Transactional
     public List<Item> getItemsBySellerId(Long sellerId) {
+        System.out.println("=== getItemsBySellerId 시작 ===");
+        System.out.println("sellerId: " + sellerId);
+
         List<Item> items = itemDAO.selectItemsBySellerId(sellerId);
+        System.out.println("조회된 아이템 수: " + items.size());
 
         // 각 아이템의 이미지 리스트 설정
         for (Item item : items) {
+            System.out.println("아이템 ID: " + item.getItemId() + " 처리 시작");
+
             if (item.getAdditionalImages() != null && !item.getAdditionalImages().isEmpty()) {
                 try {
                     List<String> imageUrls = objectMapper.readValue(
@@ -404,10 +416,22 @@ public class ItemService {
             } else {
                 item.setImageUrlList(new ArrayList<>());
             }
+
+            // 각 아이템의 좋아요 수 설정
+            System.out.println("아이템 ID " + item.getItemId() + "의 좋아요 수 계산 시작");
+            Long likeCount = itemLikeDAO.countItemLikeByItemId(item.getItemId());
+            System.out.println("계산된 좋아요 수: " + likeCount);
+
+            item.setLikeCount(likeCount);
+            System.out.println("설정 후 item.getLikeCount(): " + item.getLikeCount());
+            System.out.println("아이템 ID: " + item.getItemId() + " 처리 완료");
+            System.out.println("---");
         }
 
+        System.out.println("=== getItemsBySellerId 완료 ===");
         return items;
     }
+
     @Transactional
     public List<Item> getItemsByCategory(Long categoryId) {
         List<Item> items = itemDAO.selectItemsByCategory(categoryId);
