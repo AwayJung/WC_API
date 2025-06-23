@@ -25,6 +25,7 @@ public class Item {
     // 추가 필드 - JOIN 결과를 받기 위한 필드
     private String sellerEmail;
     private String sellerName;
+    private String sellerNickname;
 
     // 조회 결과용 필드 - 추가 이미지 URL 리스트
     private List<String> imageUrlList;
