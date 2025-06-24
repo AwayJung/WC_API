@@ -345,5 +345,26 @@ public class UserController {
                     .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, e.getMessage()));
         }
     }
+    /**
+     * 다른 사용자의 프로필 정보 조회 (판매자 정보 조회용)
+     * - 민감한 정보(비밀번호, 이메일, 리프레시토큰)는 제외하고 반환
+     * - 프로필 이미지, 닉네임, 자기소개, 가입일 등만 공개
+     *
+     * @param userId 조회할 사용자 ID
+     * @return 해당 사용자의 공개 프로필 정보
+     */
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<ApiResp> getUserProfileById(@PathVariable Integer userId) {
+        try {
+            User userProfile = userService.getUserProfileById(userId);
+            return ResponseEntity.status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.SUCCESS, userProfile));
+        } catch (Exception e) {
+            System.out.println("다른 사용자 프로필 조회 에러: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(ApiRespPolicy.ERR_NOT_AUTHENTICATED.getHttpStatus())
+                    .body(ApiResp.of(ApiRespPolicy.ERR_NOT_AUTHENTICATED, "사용자를 찾을 수 없습니다."));
+        }
+    }
 
 }

@@ -105,4 +105,21 @@ public class ChatController {
                     .body(ApiResp.of(ApiRespPolicy.ERR_CHATROOM_DELETE_FAILED));
         }
     }
+
+    /**
+     * 사용자가 참여한 채팅방 개수 조회
+     * @param userId 사용자 ID
+     * @return 채팅방 개수
+     */
+    @GetMapping("/count/user/{userId}")
+    public ResponseEntity<ApiResp> getChatRoomCount(@PathVariable int userId) {
+        int count = chatService.getChatRoomCountByUserId(userId);
+
+        Map<String, Integer> response = new HashMap<>();
+        response.put("chatCount", count);
+
+        return ResponseEntity
+                .status(ApiRespPolicy.SUCCESS.getHttpStatus())
+                .body(ApiResp.of(ApiRespPolicy.SUCCESS, response));
+    }
 }

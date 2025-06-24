@@ -103,4 +103,11 @@ public interface ChatDAO {
      * @param roomId 채팅방 ID
      */
     void deleteChatRoom(String roomId);
+
+    /**
+     * 사용자가 참여한 총 채팅방 개수 조회
+     * @param userId 사용자 ID
+     * @return 참여한 채팅방 총 개수
+     */
+    int countChatRoomsByUserId(int userId);
 }

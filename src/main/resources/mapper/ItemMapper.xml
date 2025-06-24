@@ -43,7 +43,8 @@
             u.login_email as seller_email,
             u.name as seller_name,
             u.nickname as seller_nickname,
-            c.name as category_name
+            c.name as category_name,
+            (SELECT COUNT(*) FROM chat_room cr WHERE cr.item_id = i.item_id) as chatCount
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
                  LEFT JOIN category c ON i.category_id = c.id
@@ -67,7 +68,8 @@
             u.login_email as seller_email,
             u.name as seller_name,
             u.nickname as seller_nickname,
-            c.name as category_name
+            c.name as category_name,
+            (SELECT COUNT(*) FROM chat_room cr WHERE cr.item_id = i.item_id) as chatCount
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
                  LEFT JOIN category c ON i.category_id = c.id
@@ -99,7 +101,8 @@
             u.login_email as seller_email,
             u.name as seller_name,
             u.nickname as seller_nickname,
-            c.name as category_name
+            c.name as category_name,
+            (SELECT COUNT(*) FROM chat_room cr WHERE cr.item_id = i.item_id) as chatCount
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
                  LEFT JOIN category c ON i.category_id = c.id
@@ -142,7 +145,8 @@
             u.login_email as seller_email,
             u.name as seller_name,
             u.nickname as seller_nickname,
-            c.name as category_name
+            c.name as category_name,
+            (SELECT COUNT(*) FROM chat_room cr WHERE cr.item_id = i.item_id) as chatCount
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
                  LEFT JOIN category c ON i.category_id = c.id
@@ -167,7 +171,8 @@
             u.login_email as seller_email,
             u.name as seller_name,
             u.nickname as seller_nickname,
-            c.name as category_name
+            c.name as category_name,
+            (SELECT COUNT(*) FROM chat_room cr WHERE cr.item_id = i.item_id) as chatCount
         FROM item i
                  LEFT JOIN user u ON i.seller_id = u.id
                  LEFT JOIN category c ON i.category_id = c.id

@@ -208,4 +208,14 @@ public class ChatService {
             throw new RuntimeException("채팅방 삭제 중 오류가 발생했습니다.", e);
         }
     }
+
+    /**
+     * 사용자가 참여한 총 채팅방 개수 조회
+     * @param userId 사용자 ID
+     * @return 참여한 채팅방 총 개수
+     */
+    @Transactional(readOnly = true)
+    public int getChatRoomCountByUserId(int userId) {
+        return chatDAO.countChatRoomsByUserId(userId);
+    }
 }

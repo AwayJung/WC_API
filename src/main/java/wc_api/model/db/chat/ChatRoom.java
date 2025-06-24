@@ -11,6 +11,7 @@ public class ChatRoom {
     private LocalDateTime createdAt;
     private String description;
     private int price;
+    private int participantCount; // 채팅방 참여자 수
 
     private String lastMessage;
     private LocalDateTime lastMessageTime;

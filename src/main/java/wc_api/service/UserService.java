@@ -533,4 +533,32 @@ public class UserService {
             throw new RuntimeException("이메일 발송에 실패했습니다.", e);
         }
     }
+
+    /**
+     * 다른 사용자의 공개 프로필 정보 조회 (판매자 정보 조회용)
+     * - 민감한 정보는 제외하고 공개 가능한 정보만 반환
+     * - 프로필 이미지, 닉네임, 자기소개, 가입일 등
+     *
+     * @param userId 조회할 사용자 ID
+     * @return 공개 프로필 정보 (민감한 정보 제외)
+     * @throws Exception 사용자가 존재하지 않을 때
+     */
+    public User getUserProfileById(Integer userId) throws Exception {
+        try {
+            User user = userDAO.getUserById(userId);
+            if (user == null) {
+                throw new CommonApiException(ApiRespPolicy.ERR_NOT_AUTHENTICATED);
+            }
+
+            // 민감한 정보 제거 (보안상 중요!)
+            user.setPassword(null);           // 비밀번호 제거
+            user.setLoginEmail(null);         // 이메일 제거
+            user.setRefreshToken(null);       // 리프레시 토큰 제거
+
+            return user;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 }
